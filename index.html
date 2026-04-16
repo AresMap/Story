@@ -1,0 +1,1766 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>✨ Казкова Майстерня</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#ffd93d;--pink:#ff6eb4;--mint:#4dffb4;--violet:#c77dff;--orange:#ff9f43;--blue:#48cae4}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Nunito',sans-serif;background:#000;color:#fff;min-height:100vh;overflow-x:hidden;position:relative}
+#bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;display:block}
+.app{position:relative;z-index:1;max-width:430px;margin:0 auto;padding:0 0 60px;min-height:100vh}
+.header{text-align:center;padding:24px 20px 14px}
+.header-emoji{font-size:52px;display:block;animation:float 3s ease-in-out infinite;filter:drop-shadow(0 0 20px rgba(255,217,61,.6))}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-8px) rotate(3deg)}}
+.header h1{font-family:'Baloo 2',cursive;font-size:28px;font-weight:800;background:linear-gradient(135deg,var(--gold),var(--pink),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-top:8px;line-height:1.1}
+.card{padding:14px;margin:0 14px 12px}
+.card-title{font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:10px}
+.magic-input{width:100%;background:rgba(255,255,255,.04);border:none;border-radius:14px;padding:13px 16px;color:#fff;font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;outline:none;resize:none;transition:background .2s}
+.magic-input::placeholder{color:rgba(255,255,255,.3)}
+.magic-input:focus{background:rgba(255,255,255,.08)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:8px 14px;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;transition:all .18s;border:none;user-select:none}
+.chip-genre{background:rgba(199,125,255,.12);color:var(--violet)}
+.chip-genre.on{background:var(--violet);color:#fff;box-shadow:0 4px 16px rgba(199,125,255,.4);transform:scale(1.05)}
+.chip-len{background:rgba(77,255,180,.1);color:var(--mint)}
+.chip-len.on{background:var(--mint);color:#000;box-shadow:0 4px 16px rgba(77,255,180,.4);transform:scale(1.05)}
+.btn-gen{display:flex;align-items:center;justify-content:center;gap:10px;width:calc(100% - 28px);margin:6px 14px 0;padding:18px;background:linear-gradient(135deg,#c77dff,#ff6eb4,#ffd93d);border:none;border-radius:20px;color:#fff;font-family:'Baloo 2',cursive;font-size:20px;font-weight:800;cursor:pointer;transition:all .2s;box-shadow:0 8px 32px rgba(199,125,255,.4);letter-spacing:.5px}
+.btn-gen:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(199,125,255,.55)}
+.btn-gen:active{transform:scale(.97)}
+.btn-gen:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-gen .icon{font-size:22px;animation:spin-slow 4s linear infinite}
+@keyframes spin-slow{to{transform:rotate(360deg)}}
+.loading{display:none;text-align:center;padding:30px 20px;margin:0 14px}
+.loading-wand{font-size:48px;display:inline-block;animation:wand 1s ease-in-out infinite alternate}
+@keyframes wand{from{transform:rotate(-20deg) scale(1)}to{transform:rotate(20deg) scale(1.15);filter:drop-shadow(0 0 20px gold)}}
+.loading p{color:var(--gold);font-weight:700;font-size:15px;margin-top:12px;animation:pulse .8s ease-in-out infinite alternate}
+@keyframes pulse{from{opacity:.5}to{opacity:1}}
+.loading-dots::after{content:'';animation:dots 1.5s steps(4,end) infinite}
+@keyframes dots{0%{content:''}25%{content:'.'}50%{content:'..'}75%{content:'...'}100%{content:''}}
+.story-card{display:none;margin:14px 14px 0;background:rgba(10,5,20,.75);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:none;border-radius:24px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.7)}
+.story-header{padding:16px 18px 12px;display:flex;align-items:center;gap:10px}
+.story-icon{font-size:28px}
+.story-meta{flex:1}
+.story-title-label{font-size:10px;color:rgba(255,255,255,.35);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px}
+.story-title{font-family:'Baloo 2',cursive;font-size:18px;font-weight:800;color:var(--gold);line-height:1.2}
+.story-tags{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.story-tag{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700;letter-spacing:.5px}
+.story-body{padding:18px;font-size:15px;line-height:1.85;font-weight:600;color:rgba(255,255,255,.9)}
+.story-body p{animation:fadeUp .4s ease both;margin-bottom:14px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.story-actions{display:flex;gap:8px;padding:14px 18px}
+.btn-action{flex:1;padding:11px 8px;border-radius:12px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;transition:all .18s}
+.btn-save{background:rgba(77,255,180,.15);color:var(--mint)}
+.btn-copy{background:rgba(72,202,228,.15);color:var(--blue)}
+.btn-new{background:rgba(255,163,67,.15);color:var(--orange)}
+.btn-speak{background:linear-gradient(135deg,rgba(199,125,255,.2),rgba(255,110,180,.2));color:var(--violet);width:100%;padding:14px;font-size:14px}
+.btn-speak.on{background:linear-gradient(135deg,#c77dff,#ff6eb4);color:#fff;box-shadow:0 4px 14px rgba(199,125,255,.4)}
+.saved-section{margin:20px 14px 0}
+.saved-title{font-family:'Baloo 2',cursive;font-size:16px;font-weight:800;color:var(--gold);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.saved-list{display:flex;flex-direction:column;gap:8px}
+.saved-item{background:rgba(255,255,255,.04);border:none;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .18s}
+.saved-item:hover{background:rgba(255,255,255,.08);transform:translateX(3px)}
+.saved-item-icon{font-size:24px}
+.saved-item-info{flex:1;min-width:0}
+.saved-item-title{font-size:14px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.saved-item-meta{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px}
+.saved-item-del{background:none;border:none;color:rgba(255,255,255,.25);font-size:16px;cursor:pointer;padding:4px 6px;transition:color .15s;border-radius:6px}
+.saved-item-del:hover{color:#ff6eb4;background:rgba(255,110,180,.1)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--mint);color:#000;padding:10px 22px;border-radius:50px;font-weight:800;font-size:14px;box-shadow:0 8px 24px rgba(77,255,180,.4);transition:transform .3s cubic-bezier(.34,1.56,.64,1);z-index:999;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.error-msg{display:none;margin:0 14px;background:rgba(255,110,100,.1);border-radius:14px;padding:14px;text-align:center;color:#ff8a80;font-size:13px;font-weight:700}
+.status-bar{position:fixed;top:14px;right:14px;z-index:5;display:flex;align-items:center;gap:12px}
+.status-dot{width:8px;height:8px;border-radius:50%;background:#888;transition:all .3s;box-shadow:0 0 8px transparent}
+.settings-btn{background:none;border:none;padding:0;cursor:pointer;color:rgba(255,255,255,.7);font-size:22px;line-height:1;transition:transform .2s,color .2s;width:28px;height:28px;display:flex;align-items:center;justify-content:center}
+.settings-btn:hover{color:#fff;transform:rotate(45deg)}
+.settings-btn:active{transform:rotate(90deg) scale(.9)}
+.model-picker{margin:0 14px 10px}
+.model-picker select{width:100%;background:rgba(255,255,255,.04);color:var(--violet);border:none;border-radius:12px;padding:10px 14px;font-family:Nunito,sans-serif;font-size:13px;font-weight:700;outline:none;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path fill='%23c77dff' d='M2 4l4 4 4-4'/></svg>");background-repeat:no-repeat;background-position:right 14px center;padding-right:32px}
+.model-picker select option{background:#0a0514;color:#fff}
+
+/* Модалка налаштувань */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:100;display:none;align-items:flex-end;justify-content:center;animation:fadeIn .2s ease}
+.modal-backdrop.on{display:flex}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-sheet{background:#0a0514;width:100%;max-width:430px;max-height:85vh;overflow-y:auto;border-radius:24px 24px 0 0;padding:20px 18px 32px;animation:slideUp .3s cubic-bezier(.34,1.56,.64,1)}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-grip{width:40px;height:4px;background:rgba(255,255,255,.2);border-radius:2px;margin:0 auto 16px}
+.modal-title{font-family:'Baloo 2',cursive;font-size:22px;font-weight:800;color:#fff;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.mode-label{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.35);margin:14px 0 8px}
+.model-list{display:flex;flex-direction:column;gap:6px}
+.model-item{background:rgba(255,255,255,.04);border-radius:12px;padding:12px 14px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:10px;border:1.5px solid transparent}
+.model-item:hover{background:rgba(255,255,255,.08)}
+.model-item.on{background:rgba(199,125,255,.15);border-color:#c77dff}
+.model-item-icon{font-size:20px;flex-shrink:0}
+.model-item-main{flex:1;min-width:0}
+.model-item-name{font-size:14px;font-weight:800;color:#fff}
+.model-item-desc{font-size:11px;color:rgba(255,255,255,.5);margin-top:2px;line-height:1.3}
+.model-item-check{color:#c77dff;font-size:18px;opacity:0;transition:opacity .15s}
+.model-item.on .model-item-check{opacity:1}
+.settings-hint{font-size:11px;color:rgba(255,255,255,.4);line-height:1.5;margin-top:12px;padding:10px 12px;background:rgba(255,255,255,.03);border-radius:10px}
+.settings-hint code{background:rgba(199,125,255,.15);color:#c77dff;padding:1px 5px;border-radius:4px;font-family:monospace;font-size:10px}
+.modal-close{width:100%;margin-top:18px;padding:14px;background:rgba(255,255,255,.06);border:none;border-radius:14px;color:#fff;font-weight:800;font-family:Nunito,sans-serif;font-size:15px;cursor:pointer}
+.modal-close:active{background:rgba(255,255,255,.1)}
+
+/* Top tabs: Майстерня / Бібліотека */
+.top-tabs{display:flex;gap:6px;margin:14px 14px 10px;padding:4px;background:rgba(255,255,255,.04);border-radius:14px}
+.top-tab{flex:1;padding:10px 8px;text-align:center;border-radius:10px;cursor:pointer;font-weight:800;font-size:13px;color:rgba(255,255,255,.5);transition:all .2s;user-select:none}
+.top-tab.on{background:linear-gradient(135deg,#c77dff,#ff6eb4);color:#fff;box-shadow:0 4px 14px rgba(199,125,255,.4)}
+.view-section{display:none}
+.view-section.on{display:block}
+
+/* Library */
+.lib-search{margin:0 14px 10px;position:relative}
+.lib-search input{width:100%;background:rgba(255,255,255,.04);border:none;border-radius:14px;padding:12px 16px 12px 40px;color:#fff;font-family:Nunito,sans-serif;font-size:14px;outline:none}
+.lib-search::before{content:'🔍';position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:16px}
+.lib-filters{display:flex;gap:6px;flex-wrap:wrap;margin:0 14px 10px}
+.lib-filter{padding:6px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;background:rgba(255,255,255,.05);color:rgba(255,255,255,.6);border:none;white-space:nowrap}
+.lib-filter.on{background:var(--violet);color:#fff}
+.lib-list{margin:0 14px;display:flex;flex-direction:column;gap:8px}
+.lib-item{background:rgba(255,255,255,.04);border-radius:14px;padding:14px;cursor:pointer;transition:all .18s}
+.lib-item:active{transform:scale(.98);background:rgba(255,255,255,.08)}
+.lib-item-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:4px}
+.lib-item-title{font-family:'Baloo 2',cursive;font-size:16px;font-weight:800;color:#fff;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lib-item-nation{font-size:11px;color:rgba(255,255,255,.5);white-space:nowrap;flex-shrink:0}
+.lib-item-meta{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.lib-item-tag{font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(199,125,255,.15);color:var(--violet);font-weight:700}
+.lib-item-time{font-size:10px;color:rgba(255,255,255,.4);margin-left:auto}
+.lib-empty{text-align:center;padding:40px 20px;color:rgba(255,255,255,.4);font-size:13px}
+.lib-actions-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:90;display:none;align-items:center;justify-content:center;padding:20px}
+.lib-actions-overlay.on{display:flex}
+.lib-actions-box{background:#0a0514;border-radius:20px;padding:20px;max-width:360px;width:100%}
+.lib-action-btn{width:100%;margin-top:10px;padding:14px;border:none;border-radius:14px;color:#fff;font-family:'Baloo 2',cursive;font-weight:800;font-size:15px;cursor:pointer;display:flex;align-items:center;gap:10px;justify-content:center}
+.lib-action-read{background:linear-gradient(135deg,#4dffb4,#48cae4);color:#000}
+.lib-action-remix{background:linear-gradient(135deg,#c77dff,#ff6eb4)}
+.lib-action-continue{background:linear-gradient(135deg,#ff9f43,#ffd93d);color:#000}
+.lib-action-cancel{background:rgba(255,255,255,.08);color:#fff;font-family:Nunito,sans-serif;font-size:14px}
+</style>
+</head>
+<body>
+<canvas id="bgCanvas"></canvas>
+<div class="status-bar">
+  <div class="status-dot" id="ollamaDot"></div>
+  <button class="settings-btn" id="settingsBtn" onclick="openSettings()">⚙️</button>
+</div>
+<select id="modelSelect" style="display:none"><option value="gemma2:2b">gemma2:2b</option></select>
+<span id="ollamaLabel" style="display:none"></span>
+
+<!-- МОДАЛКА НАЛАШТУВАНЬ -->
+<div class="modal-backdrop" id="settingsModal" onclick="if(event.target===this)closeSettings()">
+  <div class="modal-sheet">
+    <div class="modal-grip"></div>
+    <div class="modal-title">⚙️ Налаштування</div>
+
+    <div class="mode-label">🔑 Groq API ключ</div>
+    <div style="position:relative;margin-bottom:4px">
+      <input type="password" id="groqKeyInput" placeholder="gsk_..." autocomplete="off" style="width:100%;background:rgba(255,255,255,.04);border:1.5px solid transparent;border-radius:12px;padding:12px 44px 12px 14px;color:#fff;font-family:monospace;font-size:13px;outline:none;transition:border-color .2s">
+      <button id="keyToggleVis" onclick="toggleKeyVisibility()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,.5);cursor:pointer;padding:6px;font-size:16px">👁</button>
+    </div>
+    <div id="keyStatus" style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:14px;padding:0 2px"></div>
+
+    <div class="mode-label">Модель</div>
+    <div class="model-list" id="onlineList"></div>
+    <div class="settings-hint">
+      Безкоштовний ключ: <code>console.groq.com/keys</code><br>
+      Після реєстрації (без карти) створи ключ, скопіюй і встав сюди. Ключ зберігається тільки на твоєму пристрої.<br>
+      Ліміти: 30 запитів/хв · 14400/день · 6K токенів/хв.
+    </div>
+
+    <div class="mode-label">🎙 Голосова заставка</div>
+    <div style="font-size:12px;color:rgba(255,255,255,.55);margin-bottom:10px;line-height:1.5">
+      Запиши свій голос (5-15 сек) — це буде вступ до кожної казки. Наприклад: <em>"Слухай, синку, казочку..."</em>
+    </div>
+    <div id="voiceStatus" style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:8px"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button id="recStartBtn" onclick="startRec()" style="flex:1;min-width:120px;padding:11px;background:rgba(255,100,100,.15);border:none;border-radius:12px;color:#ff6b6b;font-weight:800;font-family:Nunito,sans-serif;font-size:13px;cursor:pointer">🔴 Записати</button>
+      <button id="recPlayBtn" onclick="playVoice()" disabled style="flex:1;min-width:120px;padding:11px;background:rgba(77,255,180,.15);border:none;border-radius:12px;color:#4dffb4;font-weight:800;font-family:Nunito,sans-serif;font-size:13px;cursor:pointer">▶️ Прослухати</button>
+      <button id="recDelBtn" onclick="deleteVoice()" disabled style="flex:1;min-width:120px;padding:11px;background:rgba(255,255,255,.06);border:none;border-radius:12px;color:rgba(255,255,255,.6);font-weight:800;font-family:Nunito,sans-serif;font-size:13px;cursor:pointer">🗑 Видалити</button>
+    </div>
+
+    <div class="mode-label">🔊 Налаштування читання</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <span style="font-size:12px;color:rgba(255,255,255,.6);min-width:60px">Швидкість</span>
+      <input type="range" id="rateSlider" min="0.6" max="1.4" step="0.05" value="0.95" style="flex:1">
+      <span id="rateVal" style="font-size:12px;color:var(--violet);min-width:36px;text-align:right;font-weight:700">0.95×</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font-size:12px;color:rgba(255,255,255,.6);min-width:60px">Висота</span>
+      <input type="range" id="pitchSlider" min="0.7" max="1.3" step="0.05" value="1.0" style="flex:1">
+      <span id="pitchVal" style="font-size:12px;color:var(--violet);min-width:36px;text-align:right;font-weight:700">1.0</span>
+    </div>
+
+    <button class="modal-close" onclick="closeSettings()">Готово</button>
+  </div>
+</div>
+
+<div class="app">
+  <div class="header">
+    <span class="header-emoji">🧙</span>
+    <h1>Казкова Майстерня</h1>
+  </div>
+
+  <div class="top-tabs">
+    <div class="top-tab on" data-view="workshop" onclick="switchView('workshop')">🧙 Майстерня</div>
+    <div class="top-tab" data-view="library" onclick="switchView('library')">📚 Бібліотека</div>
+  </div>
+
+  <!-- МАЙСТЕРНЯ -->
+  <div class="view-section on" id="viewWorkshop">
+  <div class="card">
+    <div class="card-title">🌟 Про що казка?</div>
+    <textarea class="magic-input" id="topic" rows="2" placeholder="Наприклад: дракон який боїться вогню, чарівний ліс, маленька зірочка..."></textarea>
+  </div>
+  <div class="card">
+    <div class="card-title">🎭 Жанр</div>
+    <div class="chips" id="genreChips">
+      <div class="chip chip-genre on" data-v="пригода">⚔️ Пригода</div>
+      <div class="chip chip-genre" data-v="чарівна">🔮 Чарівна</div>
+      <div class="chip chip-genre" data-v="смішна">😄 Смішна</div>
+      <div class="chip chip-genre" data-v="добра ніч">🌙 На добраніч</div>
+      <div class="chip chip-genre" data-v="про дружбу">🤝 Про дружбу</div>
+      <div class="chip chip-genre" data-v="про природу">🌿 Природа</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📏 Довжина казки</div>
+    <div class="chips" id="lenChips">
+      <div class="chip chip-len" data-v="коротка (1 хвилина читання)" data-t="Коротка">⚡ Коротка</div>
+      <div class="chip chip-len on" data-v="середня (3 хвилини читання)" data-t="Середня">📖 Середня</div>
+      <div class="chip chip-len" data-v="довга (5-7 хвилин читання)" data-t="Довга">📚 Довга</div>
+    </div>
+  </div>
+  <button class="btn-gen" id="btnGen">
+    <span class="icon">⚡</span>
+    Створити казку!
+  </button>
+  <div class="loading" id="loading">
+    <div class="loading-wand">🪄</div>
+    <p>Чаклую казку<span class="loading-dots"></span></p>
+  </div>
+  <div class="error-msg" id="errorMsg"></div>
+  <div class="story-card" id="storyCard">
+    <div class="story-header">
+      <div class="story-icon" id="storyIcon">📖</div>
+      <div class="story-meta">
+        <div class="story-title-label">Ваша казка</div>
+        <div class="story-title" id="storyTitle">—</div>
+        <div class="story-tags" id="storyTags"></div>
+      </div>
+    </div>
+    <div class="story-body" id="storyBody"></div>
+    <div class="story-actions" style="flex-wrap:wrap">
+      <button class="btn-action btn-speak" id="speakBtn" onclick="speakStory()">🔊 Читати вголос</button>
+    </div>
+    <div class="story-actions">
+      <button class="btn-action btn-save" onclick="saveStory()">💾 Зберегти</button>
+      <button class="btn-action btn-copy" onclick="copyStory()">📋 Копіювати</button>
+      <button class="btn-action btn-new"  onclick="newStory()">✨ Нова</button>
+    </div>
+  </div>
+  <div class="saved-section" id="savedSection" style="display:none">
+    <div class="saved-title">📚 Збережені казки</div>
+    <div class="saved-list" id="savedList"></div>
+  </div>
+  </div><!-- /viewWorkshop -->
+
+  <!-- БІБЛІОТЕКА -->
+  <div class="view-section" id="viewLibrary">
+    <div class="lib-search">
+      <input type="text" id="libSearch" placeholder="Пошук за назвою або тегом..." oninput="renderLibrary()">
+    </div>
+    <div class="lib-filters" id="libFilters"></div>
+    <div class="lib-list" id="libList"></div>
+  </div>
+
+  <!-- Dialog дії з казкою -->
+  <div class="lib-actions-overlay" id="libActions" onclick="if(event.target===this)closeLibActions()">
+    <div class="lib-actions-box">
+      <div style="font-family:'Baloo 2',cursive;font-size:18px;font-weight:800;color:var(--gold);margin-bottom:4px" id="libActTitle">—</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:14px" id="libActNation">—</div>
+      <button class="lib-action-btn lib-action-read" onclick="libRead()">📖 Читати</button>
+      <button class="lib-action-btn lib-action-remix" onclick="libRemix()">✨ Переказати AI з картинками</button>
+      <button class="lib-action-btn lib-action-continue" onclick="libContinue()">➡️ Продовжити історію</button>
+      <button class="lib-action-btn lib-action-cancel" onclick="closeLibActions()">Скасувати</button>
+    </div>
+  </div>
+
+</div><!-- /app -->
+<div class="toast" id="toast">✅</div>
+<script type="importmap">
+{"imports":{
+  "three":"https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.min.js"
+}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+
+// 3D STAR FIELD
+(function(){
+  const canvas=document.getElementById('bgCanvas');
+  const renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:false,alpha:false});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  const scene=new THREE.Scene();
+  scene.fog=new THREE.FogExp2(0x000000, 0.0009);
+
+  const camera=new THREE.PerspectiveCamera(70, innerWidth/innerHeight, 0.1, 3000);
+  camera.position.z=0;
+
+  function resize(){
+    renderer.setSize(innerWidth, innerHeight, false);
+    camera.aspect=innerWidth/innerHeight;
+    camera.updateProjectionMatrix();
+  }
+  resize();
+  addEventListener('resize', resize);
+
+  // Кругла текстура зірки (радіальний градієнт)
+  function makeStarTexture(){
+    const c=document.createElement('canvas');
+    c.width=c.height=64;
+    const ctx=c.getContext('2d');
+    const g=ctx.createRadialGradient(32,32,0,32,32,32);
+    g.addColorStop(0,   'rgba(255,255,255,1)');
+    g.addColorStop(0.2, 'rgba(255,255,255,0.9)');
+    g.addColorStop(0.5, 'rgba(255,255,255,0.35)');
+    g.addColorStop(1,   'rgba(255,255,255,0)');
+    ctx.fillStyle=g;
+    ctx.fillRect(0,0,64,64);
+    const tex=new THREE.CanvasTexture(c);
+    tex.needsUpdate=true;
+    return tex;
+  }
+  const starTex=makeStarTexture();
+
+  // Кілька шарів зірок із різним кольором і розміром
+  function makeStars(count, spread, size, color, opacity){
+    const geo=new THREE.BufferGeometry();
+    const positions=new Float32Array(count*3);
+    for(let i=0;i<count;i++){
+      positions[i*3]  =(Math.random()-0.5)*spread;
+      positions[i*3+1]=(Math.random()-0.5)*spread;
+      positions[i*3+2]=(Math.random()-0.5)*spread;
+    }
+    geo.setAttribute('position', new THREE.BufferAttribute(positions,3));
+    const mat=new THREE.PointsMaterial({
+      color:color, size:size, sizeAttenuation:true,
+      map:starTex, alphaMap:starTex,
+      transparent:true, opacity:opacity,
+      blending:THREE.AdditiveBlending, depthWrite:false
+    });
+    return new THREE.Points(geo, mat);
+  }
+
+  // Далекі дрібні (білі), середні (фіолетові), ближні яскраві (рожеві/золоті)
+  const layerFar   = makeStars(1200, 2200, 3.0, 0xffffff, 0.85);
+  const layerMid   = makeStars(500,  1400, 5.5, 0xc77dff, 0.75);
+  const layerClose = makeStars(180,  800,  10.0, 0xff6eb4, 0.9);
+  const layerGold  = makeStars(60,   600,  14.0, 0xffd93d, 1.0);
+  scene.add(layerFar, layerMid, layerClose, layerGold);
+
+  // Небулярні плями
+  const nebula=makeStars(25, 600, 200, 0x7a3cdc, 0.08);
+  scene.add(nebula);
+
+  // Параллакс по девайс-орієнтації + легке автокерування
+  let tx=0, ty=0, cx=0, cy=0;
+  addEventListener('pointermove', (e)=>{
+    tx=(e.clientX/innerWidth - 0.5)*0.4;
+    ty=(e.clientY/innerHeight - 0.5)*0.4;
+  }, {passive:true});
+  if(window.DeviceOrientationEvent){
+    addEventListener('deviceorientation', (e)=>{
+      if(e.gamma!=null) tx=Math.max(-0.5,Math.min(0.5, e.gamma/90));
+      if(e.beta!=null)  ty=Math.max(-0.5,Math.min(0.5, (e.beta-30)/90));
+    }, {passive:true});
+  }
+
+  const clock=new THREE.Clock();
+  function loop(){
+    const t=clock.getElapsedTime();
+    // Плавний параллакс
+    cx += (tx - cx)*0.04;
+    cy += (ty - cy)*0.04;
+    camera.rotation.y = cx*0.3 + Math.sin(t*0.02)*0.05;
+    camera.rotation.x = cy*0.3 + Math.cos(t*0.017)*0.03;
+
+    // Повільний політ вперед
+    layerFar.rotation.y   = t*0.003;
+    layerMid.rotation.y   = t*0.006;
+    layerClose.rotation.y = t*0.012;
+    layerGold.rotation.z  = t*0.008;
+    nebula.rotation.y     = t*0.002;
+
+    renderer.render(scene, camera);
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+</script>
+<script>
+// no-op (debug видалено)
+function dlog(){}
+
+
+// ============ БАЗА КАЗОК ============
+// База народних казок (public domain)
+// Тексти — короткі варіанти для читання з дітьми 4-8 років
+window.TALES_LIBRARY = [
+  // === УКРАЇНСЬКІ НАРОДНІ ===
+  {
+    id:'ripka', title:'Ріпка', nation:'🇺🇦 Українська',
+    tags:['тварини','про сім\'ю','для найменших'], minutes:2,
+    text:`Посадив дід ріпку. Росла-росла ріпка — велика-превелика виросла.
+
+Пішов дід ріпку рвати. Тягне-потягне, витягнути не може.
+
+Покликав дід бабу. Баба за діда, дід за ріпку — тягнуть-потягнуть, витягнути не можуть.
+
+Покликала баба онуку. Онука за бабу, баба за діда, дід за ріпку — тягнуть-потягнуть, витягнути не можуть.
+
+Покликала онука Жучку. Жучка за онуку, онука за бабу, баба за діда, дід за ріпку — тягнуть-потягнуть, витягнути не можуть.
+
+Покликала Жучка кицьку. Кицька за Жучку, Жучка за онуку, онука за бабу, баба за діда, дід за ріпку — тягнуть-потягнуть, витягнути не можуть.
+
+Покликала кицька мишку. Мишка за кицьку, кицька за Жучку, Жучка за онуку, онука за бабу, баба за діда, дід за ріпку — тягнуть-потягнуть — та й витягли ріпку!`
+  },
+  {
+    id:'kolobok', title:'Колобок', nation:'🇺🇦 Українська',
+    tags:['тварини','пригода','для найменших'], minutes:3,
+    text:`Жили собі дід та баба. Просить дід: «Спечи мені, бабо, колобок». А баба каже: «З чого ж я його спечу — борошна нема». — «А ти, бабо, по коробу поскреби, по засіку помети, от і набереться». Пошкребла баба по коробу, помела по засіку — і справді назбирала борошна. Замісила на сметані, засмажила в маслі й поклала на вікно студитися.
+
+Полежав колобок, полежав та й покотився — з вікна на лаву, з лави на долівку, по долівці до дверей, перестрибнув через поріг та в сіни, із сіней на ґанок, із ґанку на двір, із двору за ворота — далі й далі.
+
+Котиться колобок дорогою, а назустріч йому заєць: «Колобок, колобок, я тебе з'їм!» — «Не їж мене, зайчику, я тобі пісеньку заспіваю». І заспівав: «Я колобок, колобок, по засіку метений, на сметані мішаний, у печі печений, на вікні стужений. Я від діда втік, я від баби втік, від тебе, зайця, й поготів втечу!» Та й покотився далі.
+
+Котиться, а назустріч вовк. Колобок і йому пісеньку заспівав та й утік. Далі медвідь — і від нього втік. Аж ось назустріч лисичка: «Колобок, колобок, яка в тебе гарна пісенька! Сядь мені, голубчику, на язичок та ще раз заспівай». Сів колобок лисичці на язичок — а вона його — гам! — і з'їла.`
+  },
+  {
+    id:'rukavychka', title:'Рукавичка', nation:'🇺🇦 Українська',
+    tags:['тварини','дружба','для найменших'], minutes:2,
+    text:`Ішов дід лісом, а за ним бігла собачка. Ішов дід, ішов, та й загубив рукавичку.
+
+Ось біжить мишка, улізла в ту рукавичку та й каже: «Тут я буду жити». Коли це жабка плигає та й питає: «А хто-хто в рукавичці?» — «Мишка-шкряботушка. А ти хто?» — «Жабка-скрекотушка. Пусти й мене». — «Іди».
+
+Ось біжить зайчик: «А хто-хто в рукавичці?» — «Мишка-шкряботушка та жабка-скрекотушка. А ти хто?» — «А я зайчик-побігайчик. Пустіть і мене». — «Іди».
+
+Біжить лисичка: «А хто в рукавичці?» — «Мишка-шкряботушка, жабка-скрекотушка та зайчик-побігайчик. А ти хто?» — «А я лисичка-сестричка. Пустіть і мене». — «Іди».
+
+Прибіг вовчик — і собі в рукавичку. Потім кабан-іклан. А тоді й ведмідь приліз: «Гу-гу-гу, тут і мені треба». — «Куди ж тебе, такого великого?» — «Якось помощусь». Уліз ведмідь — і стало їх семеро, аж рукавичка тріщить.
+
+А тим часом дід оглянувся — нема рукавички. Він тоді назад. А собачка вперед забігла та як загавкає: «Гав-гав-гав!» Звірі злякалися, з рукавички повискакували, порозбігалися хто куди. А дід прийшов та й забрав рукавичку.`
+  },
+  {
+    id:'kotyk_pivnyk', title:'Котик і півник', nation:'🇺🇦 Українська',
+    tags:['тварини','дружба','пригода'], minutes:4,
+    text:`Жили собі котик і півник. Котик ходив до лісу дрова рубати, а півник удома хазяйнував. Тільки котик наказував: «Дивись же, півнику, не виглядай у вікно, бо лисичка тебе вхопить».
+
+Пішов котик, а лисичка тут як тут. Підбігла до хати та й співає: «Півнику-братику, виглянь у віконце — дам тобі горошку». Півник виглянув, а лисичка його — хап! — та й понесла.
+
+Закричав півник: «Котику-братику, несе мене лиска за кленові ліски, за бистрі води, за високі гори! Рятуй мене!» Почув котик, прибіг, відбив півника та й приніс додому.
+
+Другого дня знов пішов котик до лісу і знов наказує: «Не виглядай». Та лисичка знов приманила півника горошком, схопила й понесла. Півник кричав, та котик був далеко і не почув.
+
+Приніс котик дрова — немає півника. Взяв він бандуру, пішов до лисиччиної хати. Сів під віконцем та й грає: «Струни дзвонять, струни грають, дома ніхто не буває. Одна лисичка в хатці, четверо лисеняток у колисці, а півник у коморі сидить».
+
+Вийшла лисичка слухати — котик її за хвіст та й зв'язав. Забрав півника з комори та й пішли разом додому. І відтоді півник уже в вікно не виглядав.`
+  },
+  {
+    id:'koza_dereza', title:'Коза-дереза', nation:'🇺🇦 Українська',
+    tags:['тварини','хитрість'], minutes:3,
+    text:`Була собі коза-дереза, а в неї троє козеняток. Ішла коза до лісу пастися й наказала: «Не відчиняйте двері нікому, крім мене. Я співатиму: "Козенятка, козенятка, відчиніть дверенятка, ваша мати прийшла, молочка принесла"».
+
+Підслухав це вовк. Коли коза пішла, прибіг він під двері та й співає грубим голосом. Козенятка одразу впізнали: «Не наш то голос!» — і не відчинили.
+
+Пішов вовк до коваля: «Викуй мені тонкий голос». Викував коваль. Прибіг вовк знову, заспівав тоненько — козенятка й відчинили. Вовк усіх поковтав, тільки найменше сховалося у печі.
+
+Прийшла коза додому — нема діток. Найменшеньке вилізло й розповіло, що сталося. Пішла коза до вовка. «Вовче-вовченьку, давай позмагаємося — хто вище стрибне через яму з вогнем».
+
+Стрибнула коза — перескочила. Стрибнув вовк — не перескочив, упав у вогонь. Черево йому лопнуло — і вискочили звідти всі козенятка живі-здорові. Обнялися з мамою й побігли додому.`
+  },
+  {
+    id:'pan_kotsky', title:'Пан Коцький', nation:'🇺🇦 Українська',
+    tags:['тварини','хитрість','смішна'], minutes:4,
+    text:`Жив собі чоловік, мав кота. Став кіт старий, уже й мишей не ловить. Чоловік узяв та й виніс його в ліс: «Живи там, як знаєш».
+
+Сидить кіт під дубом, а тут лисичка біжить. Побачила його: «Хто ти такий?» Кіт випростався та й каже поважно: «Я — пан Коцький!»
+
+Лисичка злякалася, бо не чула про такого пана. Подумала-подумала й запросила його до себе в гості, а потім і за чоловіка взяла.
+
+Пішла лисичка по звірях запрошувати на весілля. Усі питають: «А хто ж той пан Коцький?» — «О, страшний! Як гляне — то з'їсть». Злякалися звірі.
+
+Приготували звірі обід. Вовк приніс барана, кабан жолудів, ведмідь меду, заєць капусти. Посідали за кущами й дивляться, що пан Коцький робитиме.
+
+Прийшов пан Коцький із лисичкою. Побачив гостину та як накинеться на м'ясо — так і гризе, ще й мурчить: «Мняу, мало, мало!» А звірі подумали, що він каже: «Мало, дай ще!» І шепочуть один одному: «Який же ненажерливий!»
+
+Тут у кабана затерпла нога, і він заворушив листям. Кіт подумав, що миша — та стриб на кабана. Кабан як підскочить, кіт злякався й майнув на дерево. А звірі побачили, що на них кинулися — та й дременули хто куди. І відтоді поважають пана Коцького.`
+  },
+  {
+    id:'telesyk', title:'Івасик-Телесик', nation:'🇺🇦 Українська',
+    tags:['пригода','чарівна','хитрість'], minutes:5,
+    text:`Жили собі дід і баба, не мали діточок. Якось видовбав дід із липового поліна колодочку, загорнув у пелюшки. Баба поклала в колиску, колихала-колихала — а з колодочки став хлопчик. Назвали Івасиком-Телесиком.
+
+Виріс Телесик, просить: «Зроби, тату, човник і весельце, поїду рибу ловити». Зробив йому дід човник. Їздить Телесик по річці, ловить рибу. А мати на обід приносить, співає: «Телесику-Телесику, приплинь-приплинь до бережка, дам тобі їсти й пити».
+
+Підслухала це змія-людоїдка. Прийшла на берег, співає грубим голосом. Телесик одразу впізнав: «То не матусин голос!» — і не приплив. Пішла змія до коваля, викувала тонкий язичок. Заспівала тоненько — Телесик і приплив. Змія вхопила його, понесла додому.
+
+Наказала дочці Оленці спекти Телесика. А Телесик хитрий: коли Оленка посадила його на лопату, він лапки й руки розставив, у піч не влазить. «Покажи, — каже, — як треба сідати». Оленка сіла — він її в піч затулив, а сам на дуб уліз.
+
+Прилетіла змія додому, з'їла — а то ж її дочка! Розлютилася, гризе дуба зубами. Аж летять гуси-лебеді. Просить Телесик: «Гуси-лебедята, візьміть мене на крилята, понесіть до татуся, до матусі». Молодший гусак узяв його на крила й відніс додому. А дід з бабою уже не плакали, а танцювали від радощів.`
+  },
+  {
+    id:'kyrylo', title:'Кирило Кожум\'яка', nation:'🇺🇦 Українська',
+    tags:['герой','пригода','легенда'], minutes:4,
+    text:`Колись давно-давно жив у Києві страшний змій. Щодня вимагав собі в данину молоду дівчину або юнака. Уже з'їв багато люду, черга дійшла й до княжої доньки.
+
+Плакав князь, плакала княгиня, плакала й сама царівна. Але мусили віддати. Привели її до змієвого лігва, лишили саму. Сидить, плаче.
+
+А в печері був голубок ручний. Царівна написала таткові з мамою останнє слово й прив'язала голубові до ніжки. Голубок прилетів у Київ, приніс звістку.
+
+Князь зібрав усіх богатирів, питає: «Хто переможе змія?» Мовчать богатирі. Тоді старий дід сказав: «Є в Києві Кирило Кожум'яка — він шкіри дванадцять за раз м'яне. Нікого сильнішого немає».
+
+Пішли посланці до Кирила. А він саме шкіри м'яв — як побачив посланців, злякався, порвав дванадцять шкір. Зрозумів, що сильніший за змія. Узяв з собою триста пудів прядива, обгорнувся ним, обмазав смолою — і пішов до печери.
+
+Як вибіг змій — Кирило його схопив, стиснув і вдарив об землю. Так і вбив. Визволив царівну, повернув її до батька. А князь хотів його нагородити, та Кирило сказав: «Я тільки Бога і свою силу славлю. Нагорода мені — що земля вільна».
+
+Відтоді Києвом ходять легенди про Кирила Кожум'яку, найсильнішого з богатирів.`
+  },
+  {
+    id:'solomyanyi', title:'Солом\'яний бичок', nation:'🇺🇦 Українська',
+    tags:['тварини','смішна','хитрість'], minutes:3,
+    text:`Жили собі дід і баба. Баба напряла куделі та й каже: «Зроби мені, діду, солом'яного бичка та обсмоли його смолою». Зробив дід.
+
+Погнала баба бичка пасти. А сама сіла прясти й задрімала. А бичок стоїть собі на лузі. Біжить ведмідь: «Хто ти такий? Дай мені смоли, чоботи залатати». — «Бери». Уліз носом у смолу — та й прилип. Смикав-смикав, не вирвався.
+
+Біжить вовк: «Хто ти? Дай смоли — мене діти на весілля звали». — «Бери». Уліз — і собі прилип. За ним лисичка по смоляну сукенку — і прилипла. За лисичкою зайчик — і той прилип.
+
+Прокинулась баба — ой леле, що наловив бичок! Ведмідь, вовк, лиса й заєць. Покликала діда. Ведмідь просить: «Відпусти, а я тобі бочку меду принесу». — «Неси». Відпустив дід. Вовк обіцяв барана. Лисиця — курочку. Заєць — кілок капусти.
+
+Уранці стукають у двері. Відчинив дід — ведмідь несе бочку меду. Потім вовк барана приволік. Лисичка курочку, а за нею гусочку та качечку — з переляку. А зайчик — цілу грядку капусти. Дід і баба стали заможні й щасливі, а солом'яного бичка посадили на покуть і з нього посміхалися.`
+  },
+  {
+    id:'lysychka_zhuravel', title:'Лисичка та журавель', nation:'🇺🇦 Українська',
+    tags:['тварини','мораль'], minutes:2,
+    text:`Здружилася лисичка з журавлем. Покликала його якось у гості: «Приходь, журавлику, пообідаємо». Наварила каші, розмастила тонким шаром по тарілці: «Їж, журавлику, їж, голубчику».
+
+Стукає журавель довгим дзьобом по тарілці — нічого не вхопить. А лисичка язичком усе злизала: «Ну, куме, вибачай, чим багаті, тим і раді». Журавель подякував і пішов голодний.
+
+Через день журавель лисичку на обід кличе: «Завтра приходь і ти в гості». Прийшла лисичка. А журавель наварив смачного окрошку й налив у глечик з довгою вузькою шийкою. «Їж, кумо!»
+
+Лисичка крутиться круг глечика — то з одного боку, то з другого. Лиже-лиже, а до їжі не дотягнеться. А журавель довгим дзьобом увесь окрошок виїв. «Ну, кумо, вибачай — чим багата, тим і рада».
+
+І відтоді лисичка з журавлем не дружать. Бо як кого в гості кличеш — приймай так, щоб і він наївся, а не тільки ти.`
+  },
+  // === БРАТИ ГРІММ (в українському переспіві) ===
+  {
+    id:'bremen', title:'Бременські музики', nation:'🇩🇪 Брати Грімм',
+    tags:['тварини','дружба','пригода'], minutes:4,
+    text:`Був у чоловіка старий осел. Не захотів господар його далі годувати. А осел подумав: «Піду я до Бремена — стану там міським музикою. Голос у мене є».
+
+Іде дорогою. Бачить — лежить на узбіччі старий пес, ледве дихає. «Чого сумуєш?» — «Господар мене вигнати хоче, бо не годен більше на полювання». — «Іди зі мною до Бремена, разом музиками станемо. Ти будеш на барабані грати».
+
+Ідуть далі. Бачать — сидить кіт, сумний-сумний. «Що з тобою?» — «Господиня хоче мене в річку кинути, бо вже мишей не ловлю». — «Ходімо з нами, зі скрипки гратимеш».
+
+Ідуть далі. Чують — кричить півень на паркані, аж захрип. «Чого кричиш?» — «Завтра господиня мене на суп зарубає». — «Ходімо, на всю Бремен співатимеш».
+
+Пішли разом. Темніло. Побачили в лісі хатку — світиться. Підкралися під вікно. А там розбійники сидять, їдять, рахують награбоване золото.
+
+Стали музики один на одного: осел на долі, пес на ослі, кіт на псові, півень на коті. Та як заревли всі разом! Розбійники подумали — чудовиська напали, і дременули в ліс.
+
+Музики наїлися, полягали спати: осел на подвір'ї, пес за дверима, кіт на попелі, півень на даху. А вночі прислав розбійник одного: подивись, чи нема кого. Той увійшов, побачив у темряві кошачі очі — подумав, вуглинки. Нахилився — кіт його лапою! Біжить — пес за ногу! У двір — осел копитом! А з даху півень: «Ку-ку-рі-ку!»
+
+Розбійник утік до своїх: «Відьма в хаті, вона мене пошматувала, ніж усадила, дрючком ударила, а з даху суддя кричить — тягніть його сюди!» Розбійники більше туди ні ногою. А четверо друзів у тій хатці й лишилися жити.`
+  },
+  {
+    id:'cholovichok_palchyk', title:'Хлопчик-мізинчик', nation:'🇩🇪 Брати Грімм',
+    tags:['чарівна','пригода','герой'], minutes:3,
+    text:`Жили собі чоловік та жінка, і не було в них дітей. Ось жінка й каже: «Хоч би нам хлопчика, хоч би мізинчика, — я б його так любила!»
+
+Та й народився їм синочок — маленький-маленький, не більший за мізинчик. Назвали його Мізинчиком. Хлопчик хоч і крихітний, а розумний та моторний.
+
+Якось батько збирався в ліс по дрова: «Аби ж хтось коня вивів». А Мізинчик: «Я виведу!» Уліз коневі у вухо й звідти кричить: «Гай-гай, вперед!» Везе дрова. Стрілися двоє людей — дивуються: віз їде, а нікого не видно, тільки голос чути.
+
+«Продай нам хлопчика», — просять. Батько спочатку відмовлявся, але Мізинчик сам шепнув: «Продай, а я втечу і повернусь». Продали.
+
+Посадили Мізинчика чоловіки на капелюх. Як поїхали, він стрибнув у мишачу нору — і зник. Повз проходив вовк. Мізинчик сховався йому в шерсть, а потім сказав: «Вовче, знаю дім, де повна комора ковбас». Повів вовка до батьківської хати.
+
+Уліз вовк у комору через дірочку, наївся — та розтовстів, не може вилізти. А Мізинчик вискочив, закричав: «Татку, татку, тут вовк!» Прибіг батько зі сокирою, вбив вовка. А з вовкового живота виліз Мізинчик цілий-цілісінький. Обняла його мати й більше з хати не пускала. Жили щасливо.`
+  },
+  {
+    id:'vovk_semero', title:'Вовк і семеро козенят', nation:'🇩🇪 Брати Грімм',
+    tags:['тварини','пригода'], minutes:3,
+    text:`Була собі коза й семеро козенят. Пішла одного дня в ліс по траву, а козенятам наказала: «Нікому не відчиняйте, тільки мені. Я заспіваю тонким голоском».
+
+Підслухав вовк, прийшов, заспівав. Та голос у нього грубий. Козенятка кажуть: «Мама співає тоненько, а ти грубо. Іди геть!» Вовк побіг до мірошника: «Посип мені борошном горло». Посипав мірошник. Тепер голос став тоненький.
+
+Прибіг вовк знову, заспівав. Козенятка й відчинили. Вовк увірвався і з'їв усіх, крім найменшого, що сховалося в годиннику.
+
+Прийшла коза — нема діток, хата розкидана. Найменше вилізло й розповіло про вовка. Пішла коза його шукати. Знайшла: лежить під деревом, спить, живіт наче гора.
+
+Узяла коза ножиці, розпорола вовкові живіт — а звідти всі шестеро козенят живі-живісінькі повискакували! Наносили каменів, напхали вовкові в живіт, зашили. Прокинувся вовк, спраглий, пішов до криниці напитися — а камені його вниз тягнуть. Упав — і втопився. А коза з козенятами обійнялися й жили щасливо.`
+  },
+  // === АНДЕРСЕН (короткі перекази) ===
+  {
+    id:'brydke_kachenia', title:'Бридке каченя', nation:'🇩🇰 Андерсен',
+    tags:['тварини','мораль','добра ніч'], minutes:4,
+    text:`У качки вилупилося сім каченят. Шестеро — жовтенькі, гарні. А сьоме — велике, сіре, бридке. Усі його дражнили: «Бридке! Бридке!»
+
+Качка-мати заступалася, та й братики з сестричками теж клювали його. Бридке каченя так засумувало, що втекло з двору.
+
+Блукало полями. Зайшло до болота, де жили дикі качки. І ті його проганяли: «Бридкий, іди геть». Зимою замерзло на озері в льоду. Якийсь добрий селянин його врятував, приніс додому — та діти в хаті налякали, і каченя знов утекло.
+
+Зимувало самотньо в очереті. Весною, коли зійшов лід, розправило крила — і полетіло! Підлетіло до ставка, а там — три прекрасні лебеді. Думає: «Підійду до них. Нехай кращі за мене заклюють — все одно краще, ніж качки дражнили».
+
+Підійшло, похилило голову — а вони підпливли й привіталися. А тоді каченя побачило своє відображення у воді. Воно вже не було сірим бридким каченям — перед ним стояв красивий білий лебідь!
+
+Діти, що бігли по березі, закричали: «Дивіться, новий лебідь прилетів — і він найкрасивіший з усіх!» Молодий лебідь потім думав: «Я ніколи й не мріяв про таке щастя, коли був бридким каченям».`
+  },
+  {
+    id:'soldat', title:'Стійкий олов\'яний солдатик', nation:'🇩🇰 Андерсен',
+    tags:['пригода','герой','романтика'], minutes:4,
+    text:`Було двадцять п'ять олов'яних солдатиків — усі однакові. Та останньому олова не вистачило, і в нього зробили лише одну ногу. Проте стояв він твердо — не згірше за інших.
+
+Поставили солдатиків на столі серед інших іграшок. А поруч — паперовий замок, а перед ним картонна балерина. Вона стояла на одній нозі, другу підняла так високо, що сам солдатик не помітив — і вирішив, що вона теж на одній. «Ось моя наречена!» — подумав він.
+
+Вночі зашелестіло: з табакерки вискочив чорний чортеня. «Солдатику, куди задивився?» — засичав. Солдатик мовчав. «Ось почекай, завтра тобі буде!»
+
+Уранці хлопчик поставив солдатика на підвіконня. Вітер дмухнув — солдатик упав на вулицю. Знайшли його двоє хлопчаків, зробили паперовий човник, пустили по канаві. Солдатик плив, стояв твердо, не хилився.
+
+Човник заплив у темну стічну трубу. Там сидів щур: «Плати мито!» Та солдатик мовчки плив далі. Винесло його в річку. Човник розмокнув, солдатик пішов на дно. Та й тут стояв твердо, з рушницею в руках.
+
+Проковтнула його велика риба. Потім ту рибу зловили, принесли на кухню. Куховарка розрізала рибу — а всередині солдатик! Понесли його в дитячу, поставили на стіл.
+
+А там усе було як раніше: ялинка, дерев'яні солдатики, балерина на одній нозі. Солдатик упізнав її. У цю мить хлопчик, сам не знаючи чому, кинув солдатика в грубу. Вогонь його охопив — та солдатик стояв твердо, дивився на балерину.
+
+Розчинилися двері, протяг. Балерина злетіла у вогонь до солдатика. Уранці знайшли в попелі маленьке олов'яне сердечко й чорну блискітку — усе, що лишилося від балерини.`
+  },
+  {
+    id:'printsesa_horoshok', title:'Принцеса на горошині', nation:'🇩🇰 Андерсен',
+    tags:['чарівна','смішна','романтика'], minutes:2,
+    text:`Був колись принц і захотів оженитися. Та тільки на справжній принцесі. Об'їхав він увесь світ, знайомився з багатьма принцесами, але завжди сумнівався: «А чи справжня вона?»
+
+Повернувся додому сумний. Аж ось одного вечора почалася страшна буря. Грім гримів, дощ лив, блискавки сяяли. Раптом у двері палацу хтось постукав.
+
+Старий король сам пішов відчиняти. За дверима стояла дівчина. Боже, на що вона була схожа! Вода стікала з її волосся, сукні, чобіт. Та все ж казала: «Я справжня принцеса».
+
+«Це ми зараз перевіримо», — подумала стара королева. Вона пішла в спальню, зняла з ліжка всю постіль і поклала на матрац одну горошину. Зверху нагорнула двадцять матраців, а на них ще двадцять пухових перин. Отут і мала спати принцеса.
+
+Уранці королева питає: «Ну як, добре спалося?» — «О ні, я зовсім не спала! Там під матрацом було щось тверде — у мене все тіло в синцях!»
+
+От тепер було зрозуміло, що вона справжня принцеса. Бо тільки справжня принцеса могла крізь двадцять матраців і двадцять перин відчути маленьку горошину. Принц негайно з нею одружився, а горошину поклали в музей — де, кажуть, вона й досі лежить.`
+  },
+  // === ЄВРОПЕЙСЬКІ ===
+  {
+    id:'cherv_kapeliushok', title:'Червона Шапочка', nation:'🇫🇷 Перро',
+    tags:['пригода','тварини','мораль'], minutes:3,
+    text:`Жила собі маленька дівчинка, гарненька така, що на всьому світі кращої не знайти. Мати її дуже любила, а бабуся ще більше. Пошила бабуся онучці червоний каптурчик, так їй личив, що всі почали звати її Червоною Шапочкою.
+
+Якось мати спекла пиріжки і каже: «Піди, доню, провідай бабусю, занеси їй пиріжків і горщик масла. Вона трохи нездужає». Червона Шапочка зібралася й пішла лісом.
+
+А в лісі її зустрів вовк. Дуже хотів він з'їсти дівчинку, та поруч працювали дроворуби, і він не наважився. «Куди йдеш, Червона Шапочко?» — «До бабусі, несу їй пиріжки». — «А де живе твоя бабуся?» — «Отам, за тим млином, перша хатка».
+
+Вовк подумав-подумав, кинув їй: «Давай наввипередки! Ти йди цією дорогою, а я тією, побачимо, хто перший прибіжить». Сам побіг короткою стежкою, а Червона Шапочка пішла довгою, збираючи дорогою квіти.
+
+Вовк першим прибіг до бабусиної хати. Тук-тук! «Хто там?» — «Це я, Червона Шапочка, принесла пиріжків». Бабуся відчинила — а вовк її — хап! І з'їв. Одягнув її очіпок, ліг у ліжко.
+
+Прийшла Червона Шапочка. Тук-тук! «Хто там?» — «Це я, Червона Шапочка». — «Смикни за шнурочок, дверцята й відчиняться». Увійшла дівчинка, здивувалася: «Бабусю, які в тебе великі руки!» — «Щоб краще тебе обіймати, онучко». — «А які в тебе великі вуха!» — «Щоб краще тебе слухати». — «А очі які великі!» — «Щоб краще тебе бачити». — «А зуби які!» — «А це щоб тебе з'їсти!»
+
+Та саме тут дроворуби проходили повз хату. Почули крик, вбігли, вбили вовка й розпороли йому живіт. Звідти живі-живісінькі вискочили бабуся і Червона Шапочка. І далі жили щасливо, а Червона Шапочка відтоді з лісу дороги не сходила.`
+  },
+  // === КОРОТКІ ===
+  {
+    id:'lebid_rak_schuka', title:'Лебідь, Рак і Щука', nation:'🇺🇦 Байка',
+    tags:['тварини','мораль','коротка'], minutes:1,
+    text:`Надумали якось Лебідь, Рак і Щука везти разом воза з поклажею. Упряглися, тягнуть — а воза з місця не зрушать.
+
+Лебідь рветься в небо, тягне догори. Рак задкує назад, у своє болотце. Щука тягне у воду.
+
+Хто з них винен, хто правий — не нам судити. Та тільки віз і досі там стоїть, де стояв. Бо коли в товаристві нема згоди — ніякого діла не буде.`
+  },
+  {
+    id:'miska_miska', title:'Три ведмеді', nation:'🇷🇺 Толстой',
+    tags:['тварини','пригода','для найменших'], minutes:3,
+    text:`Пішла дівчинка в ліс по ягоди. Заблукала. Ходила-ходила — а тут серед лісу хатинка. Заглянула у віконце — нікого немає. Увійшла.
+
+У хаті живуть три ведмеді. Великий тато Михайло Іванович, середня мама Настасія Петрівна, маленький синочок Мишутка. А їх якраз удома не було — пішли на прогулянку.
+
+На столі стояли три миски з кашею. Одна велика-велика — татова. Друга середня — мамина. Третя маленька — Мишутчина. Покуштувала дівчинка з великої — несмачна. З середньої — теж. А з маленької — як смачно! І всю виїла.
+
+Сіла на великий стілець — незручно. На середній — твердо. На маленький — якраз! Та засиділася й зламала стільчик.
+
+Пішла в спальню. Лягла на велике ліжко — завелике. На середнє — замуляно. На маленьке — саме! І заснула.
+
+Повернулись ведмеді. «Хто мою кашу їв?» — реве тато. «І мою!» — мама. «А мою всю виїв!» — пискнув Мишутка. «Хто на моєму стільці сидів?» — «І на моєму!» — «А мій зламав!»
+
+Зайшли в спальню. «Хто на моєму ліжку лежав?» — «І на моєму!» — «А ось у моєму дівчинка спить!»
+
+Прокинулась дівчинка, як побачила ведмедів — крізь вікно вистрибнула і додому. А ведмеді тільки сплеснули лапами. Більше вона в той ліс не ходила.`
+  }
+];
+
+
+// ============ БІБЛІОТЕКА ============
+var libSelectedTale = null;
+var libActiveFilter = 'all';
+
+window.switchView = function(view){
+  document.querySelectorAll('.top-tab').forEach(function(t){
+    t.classList.toggle('on', t.dataset.view===view);
+  });
+  document.getElementById('viewWorkshop').classList.toggle('on', view==='workshop');
+  document.getElementById('viewLibrary').classList.toggle('on', view==='library');
+  if(view==='library'){
+    renderLibFilters();
+    renderLibrary();
+  }
+};
+
+function getAllTags(){
+  var tags = {};
+  (window.TALES_LIBRARY||[]).forEach(function(t){
+    (t.tags||[]).forEach(function(tag){ tags[tag] = (tags[tag]||0) + 1; });
+  });
+  return Object.keys(tags).sort(function(a,b){ return tags[b]-tags[a]; });
+}
+
+function renderLibFilters(){
+  var el = document.getElementById('libFilters');
+  if(!el) return;
+  var tags = getAllTags();
+  var html = '<button class="lib-filter'+(libActiveFilter==='all'?' on':'')+'" onclick="libFilter(\'all\')">Всі</button>';
+  tags.forEach(function(tag){
+    var on = libActiveFilter===tag ? ' on' : '';
+    html += '<button class="lib-filter'+on+'" onclick="libFilter(\''+tag+'\')">'+tag+'</button>';
+  });
+  el.innerHTML = html;
+}
+
+window.libFilter = function(tag){
+  libActiveFilter = tag;
+  renderLibFilters();
+  renderLibrary();
+};
+
+window.renderLibrary = function(){
+  var list = document.getElementById('libList');
+  if(!list) return;
+  var q = (document.getElementById('libSearch').value||'').toLowerCase().trim();
+  var tales = (window.TALES_LIBRARY||[]).filter(function(t){
+    if(libActiveFilter!=='all' && !(t.tags||[]).includes(libActiveFilter)) return false;
+    if(q){
+      var hay = (t.title+' '+t.nation+' '+(t.tags||[]).join(' ')).toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+  if(!tales.length){
+    list.innerHTML = '<div class="lib-empty">Нічого не знайдено 🤷</div>';
+    return;
+  }
+  list.innerHTML = tales.map(function(t){
+    var tagsHtml = (t.tags||[]).map(function(tag){ return '<span class="lib-item-tag">'+tag+'</span>'; }).join('');
+    return '<div class="lib-item" onclick="openLibTale(\''+t.id+'\')">'
+      +'<div class="lib-item-top">'
+      +'<div class="lib-item-title">'+t.title+'</div>'
+      +'<div class="lib-item-nation">'+t.nation+'</div>'
+      +'</div>'
+      +'<div class="lib-item-meta">'+tagsHtml+'<span class="lib-item-time">⏱ '+t.minutes+' хв</span></div>'
+      +'</div>';
+  }).join('');
+};
+
+window.openLibTale = function(id){
+  var t = (window.TALES_LIBRARY||[]).find(function(x){ return x.id===id; });
+  if(!t) return;
+  libSelectedTale = t;
+  document.getElementById('libActTitle').textContent = t.title;
+  document.getElementById('libActNation').textContent = t.nation + ' · ⏱ ' + t.minutes + ' хв';
+  document.getElementById('libActions').classList.add('on');
+};
+window.closeLibActions = function(){
+  document.getElementById('libActions').classList.remove('on');
+};
+
+window.libRead = function(){
+  var t = libSelectedTale; if(!t) return;
+  closeLibActions();
+  // Показуємо як звичайну казку в workshop
+  currentStory = {
+    title: t.title,
+    scenes: [{title: t.title, text: t.text, image: null}],
+    body: t.text,
+    genre: (t.tags||['казка'])[0],
+    len: t.minutes+' хв',
+    date: new Date().toLocaleDateString('uk'),
+    model: 'Народна · '+t.nation
+  };
+  switchView('workshop');
+  renderStory(currentStory);
+};
+
+window.libRemix = async function(){
+  var t = libSelectedTale; if(!t) return;
+  closeLibActions();
+  switchView('workshop');
+  // Запускаємо AI переказ через спеціальний промпт
+  document.getElementById('topic').value = 'Переказ казки «'+t.title+'» (' +t.nation+ '): '+t.text.slice(0,200)+'...';
+  dlog('✨ AI-римейк: '+t.title);
+  // Викликаємо звичайну генерацію, використовуючи оригінальну казку як контекст
+  generateTaleFromOriginal(t);
+};
+
+window.libContinue = async function(){
+  var t = libSelectedTale; if(!t) return;
+  closeLibActions();
+  switchView('workshop');
+  document.getElementById('topic').value = 'Продовження казки «'+t.title+'»';
+  dlog('➡️ Продовжуємо: '+t.title);
+  generateTaleContinue(t);
+};
+
+// AI-римейк: береться оригінал і переказується з новим стилем/героями/кольором
+async function generateTaleFromOriginal(tale){
+  var errorEl = document.getElementById('errorMsg');
+  errorEl.style.display='none';
+  var btn = document.getElementById('btnGen');
+  var loading = document.getElementById('loading');
+  var storyCard = document.getElementById('storyCard');
+  btn.disabled=true; loading.style.display='block'; storyCard.style.display='none';
+
+  var totalScenes = lenScenes[selectedLenT]||4;
+  var tokensPerScene = Math.floor((lenTokens[selectedLenT]||1800)/totalScenes)+200;
+
+  try{
+    setStatus('✨ Переказую «'+tale.title+'»');
+    dlog('🚀 римейк старт, сцен='+totalScenes);
+
+    // План — на основі оригіналу
+    var planPrompt = 'Ти — казкар. Перед тобою оригінал народної казки. Переказати її свіжо, зі своїми деталями, діалогами, сучасними нотками, але зберегти дух і мораль.\n\n'
+      +'ОРИГІНАЛ («'+tale.title+'», '+tale.nation+'):\n'+tale.text+'\n\n'
+      +'Поверни ТІЛЬКИ валідний JSON без markdown:\n'
+      +'{\n'
+      +'  "title": "Новий заголовок українською (можна залишити оригінальний)",\n'
+      +'  "heroes": "Опис героїв з іменами, 1-2 речення",\n'
+      +'  "scenes": [ { "title":"...", "what_happens":"...", "image_en":"English image desc" }, ... '+totalScenes+' сцен ]\n'
+      +'}';
+
+    var planRaw = await aiGenerate(planPrompt, {temperature:0.95, num_predict:1500});
+    dlog('📥 план: '+planRaw.length+' симв');
+    var plan = extractJson(planRaw);
+
+    if(!plan||!plan.scenes||!plan.scenes.length){
+      // Fallback: простий переказ одним шматком
+      dlog('⚠️ FALLBACK: простий переказ');
+      setStatus('✍️ Переказую...');
+      var simpleText = await aiGenerate(
+        'Перекажи казку «'+tale.title+'» ('+tale.nation+') своїми словами, українською, зберігаючи сюжет але з живими деталями, діалогами й сучасним шармом:\n\n'+tale.text,
+        {temperature:0.95, num_predict: lenTokens[selectedLenT]||1800}
+      );
+      setStatus('🎨 Обкладинка');
+      var imgPrompt = await buildImagePrompt(tale.title, simpleText, tale.title);
+      var imgUrl = pollinationsUrl(imgPrompt||tale.title, Math.floor(Math.random()*100000));
+      var coverImg = await preloadImage(imgUrl);
+      currentStory = {
+        title: tale.title+' (римейк)',
+        scenes: [{title: tale.title, text: simpleText.trim(), image: coverImg}],
+        body: simpleText,
+        genre: (tale.tags||['казка'])[0], len: selectedLenT,
+        date: new Date().toLocaleDateString('uk'),
+        model: activeModelLabel()+' (римейк)'
+      };
+      renderStory(currentStory);
+      btn.disabled=false; loading.style.display='none';
+      return;
+    }
+
+    // Повний шлях: по сценам
+    var n = plan.scenes.length;
+    var picIndices = n<=1?[0]:n<=3?[0,n-1]:[0,Math.floor(n/2),n-1];
+
+    var sceneTexts = [];
+    for(var i=0; i<plan.scenes.length; i++){
+      var sc = plan.scenes[i];
+      setStatus('✍️ Сцена '+(i+1)+'/'+n);
+      var ctx = 'Казка: "'+plan.title+'"\nГерої: '+plan.heroes+'\nОригінальний сюжет: '+tale.text.slice(0,400)+'\n';
+      if(sceneTexts.length) ctx+='Попередня сцена: ...'+sceneTexts[sceneTexts.length-1].slice(-250)+'\n';
+      var isFirst=i===0, isLast=i===n-1;
+      var scenePrompt = ctx+'\nНапиши сцену "'+sc.title+'": '+sc.what_happens+'\n\n'
+        +'- Жива мова для дітей 4-8 років\n'
+        +'- Діалоги, звуки, емоції\n'
+        +'- '+(isFirst?'Почни казку.':isLast?'Заверши красиво.':'Розвивай історію.')+'\n'
+        +'- 3-6 абзаців, українською, без заголовків';
+      var t2 = await aiGenerate(scenePrompt, {temperature:0.95, num_predict:tokensPerScene});
+      sceneTexts.push(t2.replace(/^\s*(Сцена|НАЗВА|Глава|Розділ)[^\n]*\n/gim,'').trim());
+      dlog('✍️ сцена '+(i+1)+' готова');
+    }
+
+    setStatus('🎨 Придумую ілюстрації');
+    var seed = Math.floor(Math.random()*100000);
+    var imgPromises = picIndices.map(function(idx){
+      return buildImagePrompt(plan.scenes[idx].title, sceneTexts[idx], plan.heroes||'')
+        .then(function(p){
+          var finalP = p||plan.scenes[idx].image_en||plan.scenes[idx].what_happens;
+          return preloadImage(pollinationsUrl(finalP, seed+idx)).then(function(u){
+            return {idx:idx, url:u};
+          });
+        });
+    });
+    setStatus('🎨 Малюю');
+    var imgRes = await Promise.all(imgPromises);
+    var images = {};
+    imgRes.forEach(function(r){ images[r.idx]=r.url; });
+
+    currentStory = {
+      title: plan.title||tale.title,
+      heroes: plan.heroes||'',
+      scenes: plan.scenes.map(function(sc,i){
+        return {title:sc.title||'Сцена '+(i+1), text:sceneTexts[i]||'', image:images[i]||null};
+      }),
+      genre: (tale.tags||['казка'])[0], len:selectedLenT,
+      date: new Date().toLocaleDateString('uk'),
+      model: activeModelLabel()+' (римейк)'
+    };
+    currentStory.body = currentStory.scenes.map(function(s){return s.text}).join('\n\n');
+    renderStory(currentStory);
+    dlog('✅ Римейк готовий');
+  }catch(e){
+    dlog('💥 '+e.message);
+    var msg = e.message||'Помилка';
+    errorEl.textContent='😢 '+msg;
+    errorEl.style.display='block';
+  }
+  btn.disabled=false; loading.style.display='none';
+}
+
+// Продовження історії
+async function generateTaleContinue(tale){
+  var errorEl = document.getElementById('errorMsg');
+  errorEl.style.display='none';
+  var btn = document.getElementById('btnGen');
+  var loading = document.getElementById('loading');
+  var storyCard = document.getElementById('storyCard');
+  btn.disabled=true; loading.style.display='block'; storyCard.style.display='none';
+  try{
+    setStatus('➡️ Продовжую історію «'+tale.title+'»');
+    var prompt = 'Перед тобою кінець народної казки «'+tale.title+'»:\n\n'+tale.text+'\n\n'
+      +'Напиши ПРОДОВЖЕННЯ цієї казки — нові пригоди тих самих героїв через деякий час після подій оригіналу. '
+      +'Українською, жива мова, діалоги, 4-6 абзаців. Почни з назви в форматі: НАЗВА: ...';
+    var out = await aiGenerate(prompt, {temperature:0.95, num_predict: lenTokens[selectedLenT]||1800});
+    var titleMatch = out.match(/НАЗВА:\s*(.+)/i);
+    var newTitle = titleMatch ? titleMatch[1].trim() : tale.title+' — продовження';
+    var body = out.replace(/НАЗВА:\s*.+\n?/i,'').trim();
+
+    setStatus('🎨 Обкладинка');
+    var imgPrompt = await buildImagePrompt(newTitle, body, tale.title);
+    var imgUrl = pollinationsUrl(imgPrompt||newTitle, Math.floor(Math.random()*100000));
+    var coverImg = await preloadImage(imgUrl);
+
+    currentStory = {
+      title: newTitle,
+      scenes: [{title:newTitle, text:body, image:coverImg}],
+      body: body, genre:(tale.tags||['казка'])[0], len:selectedLenT,
+      date: new Date().toLocaleDateString('uk'),
+      model: activeModelLabel()+' (продовження)'
+    };
+    renderStory(currentStory);
+    dlog('✅ Продовження готове');
+  }catch(e){
+    dlog('💥 '+e.message);
+    errorEl.textContent='😢 '+e.message;
+    errorEl.style.display='block';
+  }
+  btn.disabled=false; loading.style.display='none';
+}
+
+let selectedGenre='пригода';
+let selectedLen='середня (3 хвилини читання)';
+let selectedLenT='Середня';
+let currentStory=null;
+let savedStories=[];
+try{savedStories=JSON.parse(localStorage.getItem('tales')||'[]')}catch(e){}
+
+document.querySelectorAll('#genreChips .chip').forEach(function(c){
+  c.onclick=function(){
+    document.querySelectorAll('#genreChips .chip').forEach(function(x){x.classList.remove('on')});
+    c.classList.add('on');selectedGenre=c.dataset.v;
+  };
+});
+document.querySelectorAll('#lenChips .chip').forEach(function(c){
+  c.onclick=function(){
+    document.querySelectorAll('#lenChips .chip').forEach(function(x){x.classList.remove('on')});
+    c.classList.add('on');selectedLen=c.dataset.v;selectedLenT=c.dataset.t;
+  };
+});
+
+var genreIcons={'пригода':'⚔️','чарівна':'🔮','смішна':'😄','добра ніч':'🌙','про дружбу':'🤝','про природу':'🌿'};
+var genreColors={'пригода':'#ff9f43','чарівна':'#c77dff','смішна':'#ffd93d','добра ніч':'#48cae4','про дружбу':'#ff6eb4','про природу':'#4dffb4'};
+
+document.getElementById('btnGen').onclick=generateTale;
+
+// ============ РЕЖИМ (OFFLINE / ONLINE) + ВИБІР МОДЕЛІ ============
+var ONLINE_MODELS=[
+  {id:'llama-3.3-70b-versatile', name:'Llama 3.3 70B', icon:'🧠',
+   desc:'Найрозумніша, детальні історії · 394 tps'},
+  {id:'llama-3.1-8b-instant', name:'Llama 3.1 8B Instant', icon:'⚡',
+   desc:'Блискавична, 840 tps · до 14 400 запитів/день'},
+  {id:'meta-llama/llama-4-scout-17b-16e-instruct', name:'Llama 4 Scout 17B', icon:'🚀',
+   desc:'Нова, 512K контекст · для довгих казок'},
+  {id:'qwen/qwen3-32b', name:'Qwen3 32B', icon:'🎭',
+   desc:'Креативна, несподівані повороти'},
+  {id:'openai/gpt-oss-120b', name:'GPT-OSS 120B', icon:'🔮',
+   desc:'Велика відкрита GPT-модель'},
+  {id:'openai/gpt-oss-20b', name:'GPT-OSS 20B', icon:'✨',
+   desc:'Швидша версія GPT-OSS, 1000 tps'}
+];
+
+var savedOnlineModel=localStorage.getItem('selectedOnlineModel')||'llama-3.3-70b-versatile';
+var groqKey=localStorage.getItem('groqKey')||'';
+
+function activeModelId(){
+  return savedOnlineModel;
+}
+function activeModelLabel(){
+  var m=ONLINE_MODELS.find(function(x){return x.id===savedOnlineModel});
+  return m?m.name:savedOnlineModel;
+}
+
+// ============ МОДАЛКА ============
+window.openSettings=function(){
+  renderOnlineList();
+  var inp=document.getElementById('groqKeyInput');
+  if(inp) inp.value=groqKey;
+  updateKeyStatus();
+  document.getElementById('settingsModal').classList.add('on');
+};
+window.closeSettings=function(){
+  document.getElementById('settingsModal').classList.remove('on');
+};
+
+function renderOnlineList(){
+  var list=document.getElementById('onlineList');
+  list.innerHTML=ONLINE_MODELS.map(function(m){
+    var on=(m.id===savedOnlineModel)?' on':'';
+    return '<div class="model-item'+on+'" onclick="selectOnlineModel(\''+m.id+'\')">'
+      +'<div class="model-item-icon">'+m.icon+'</div>'
+      +'<div class="model-item-main">'
+      +'<div class="model-item-name">'+m.name+'</div>'
+      +'<div class="model-item-desc">'+m.desc+'</div>'
+      +'</div>'
+      +'<div class="model-item-check">✓</div>'
+      +'</div>';
+  }).join('');
+}
+window.selectOnlineModel=function(id){
+  savedOnlineModel=id;
+  localStorage.setItem('selectedOnlineModel', id);
+  renderOnlineList();
+};
+
+// ============ API КЛЮЧ GROQ ============
+function updateKeyStatus(){
+  var s=document.getElementById('keyStatus');
+  var inp=document.getElementById('groqKeyInput');
+  if(!s||!inp) return;
+  var v=(inp.value||'').trim();
+  if(!v){
+    s.textContent='⚠️ Ключ не встановлено';
+    s.style.color='#ff8a80';
+    inp.style.borderColor='transparent';
+  } else if(v.startsWith('gsk_')&&v.length>20){
+    s.textContent='✅ Ключ збережено';
+    s.style.color='#4dffb4';
+    inp.style.borderColor='rgba(77,255,180,.4)';
+  } else {
+    s.textContent='⚠️ Формат неправильний (має починатися з gsk_)';
+    s.style.color='#ffa94d';
+    inp.style.borderColor='rgba(255,169,77,.4)';
+  }
+  updateStatusDot();
+}
+window.toggleKeyVisibility=function(){
+  var inp=document.getElementById('groqKeyInput');
+  var btn=document.getElementById('keyToggleVis');
+  if(inp.type==='password'){inp.type='text';btn.textContent='🙈'}
+  else{inp.type='password';btn.textContent='👁'}
+};
+// Реєструю обробник після готовності DOM
+setTimeout(function(){
+  var inp=document.getElementById('groqKeyInput');
+  if(inp){
+    inp.addEventListener('input', function(){
+      var v=(inp.value||'').trim();
+      groqKey=v;
+      localStorage.setItem('groqKey', v);
+      updateKeyStatus();
+    });
+  }
+}, 100);
+
+// ============ СТАТУС-ТОЧКА ============
+function updateStatusDot(){
+  var dot=document.getElementById('ollamaDot');
+  if(!dot) return;
+  if(groqKey && groqKey.startsWith('gsk_') && groqKey.length>20){
+    dot.style.background='#4dffb4';
+    dot.style.boxShadow='0 0 8px #4dffb4';
+  } else {
+    dot.style.background='#ff6eb4';
+    dot.style.boxShadow='0 0 8px #ff6eb4';
+  }
+}
+updateStatusDot();
+
+// ============ ВИКЛИК AI (Groq, OpenAI-сумісний) ============
+async function aiGenerate(prompt, opts){
+  opts=opts||{};
+  if(!groqKey) throw new Error('Немає Groq API ключа. Відкрий ⚙️ і встав ключ з console.groq.com/keys');
+  var res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'Authorization':'Bearer '+groqKey
+    },
+    body:JSON.stringify({
+      model: savedOnlineModel,
+      messages: [{role:'user', content:prompt}],
+      temperature: opts.temperature||0.95,
+      max_tokens: Math.min(opts.num_predict||2000, 8000),
+      top_p: 0.95
+    })
+  });
+  if(!res.ok){
+    var t=await res.text().catch(function(){return ''});
+    if(res.status===401) throw new Error('Groq: невірний ключ. Перевір в ⚙️');
+    if(res.status===429) throw new Error('Groq: ліміт запитів. Зачекай хвилину або зміни модель');
+    throw new Error('Groq '+res.status+': '+t.slice(0,120));
+  }
+  var data=await res.json();
+  if(data&&data.choices&&data.choices[0]&&data.choices[0].message){
+    return data.choices[0].message.content||'';
+  }
+  return '';
+}
+
+// Витягти JSON з відповіді моделі (толерантний парсер)
+function extractJson(text){
+  if(!text) return null;
+  // 1. Прибираємо markdown-обгортку
+  var t=text.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
+  // 2. Шукаємо від першої { до останньої }
+  var start=t.indexOf('{');
+  var end=t.lastIndexOf('}');
+  if(start<0) return null;
+  if(end<start){
+    // Незакрита дужка — спробуємо закрити
+    t=t.slice(start)+'}';
+  } else {
+    t=t.slice(start, end+1);
+  }
+  // 3. Прибираємо trailing commas перед } або ]
+  t=t.replace(/,(\s*[}\]])/g,'$1');
+  // 4. Спроба парсити
+  try{ return JSON.parse(t); }catch(e){}
+  // 5. Остання спроба: замінити "кривi" лапки на нормальні
+  try{
+    var fixed=t.replace(/[""]/g,'"').replace(/['']/g,"'");
+    return JSON.parse(fixed);
+  }catch(e){}
+  console.warn('JSON parse failed. Raw:', text.slice(0,500));
+  return null;
+}
+
+// Оновлення статусу генерації
+function setStatus(msg){
+  var p=document.querySelector('#loading p');
+  if(p) p.innerHTML=msg+'<span class="loading-dots"></span>';
+}
+
+// Pollinations URL з сильними стильовими підказками і negative prompt
+function pollinationsUrl(prompt, seed){
+  // Модель краще тримає стиль коли в промпті є і сюжет, і стиль
+  var p='storybook illustration for children, '+prompt
+    +', whimsical fairytale art, soft watercolor style, warm magical lighting, vibrant colors, detailed background, cinematic composition, '
+    +'no text, no letters, no words, no typography, no watermark, no signature';
+  // model=flux дає найкращу якість
+  return 'https://image.pollinations.ai/prompt/'+encodeURIComponent(p)
+    +'?width=768&height=512&nologo=true&enhance=true&seed='+seed
+    +'&model=flux';
+}
+
+// Попросити модель створити чіткий image prompt на базі тексту сцени
+async function buildImagePrompt(sceneTitle, sceneText, heroes){
+  // Беремо перші ~500 символів сцени для контексту
+  var excerpt=(sceneText||'').slice(0, 500);
+  var prompt='You are an illustrator describing a scene for an image generator.\n'
+    +'Write ONE sentence in ENGLISH (max 35 words) describing the most visually striking moment from this scene.\n'
+    +'Include: characters (names, appearance, clothing), environment, action, mood, time of day, colors.\n'
+    +'NO quotes, NO "a scene where", just pure visual description.\n\n'
+    +'HEROES: '+heroes+'\n'
+    +'SCENE TITLE: '+sceneTitle+'\n'
+    +'SCENE TEXT (Ukrainian, translate the visuals): '+excerpt+'\n\n'
+    +'IMAGE DESCRIPTION (one English sentence, visual only):';
+  try{
+    var out=await aiGenerate(prompt, {temperature:0.7, num_predict:120});
+    out=(out||'').trim()
+      .replace(/^["'«»]+|["'«»]+$/g,'')
+      .replace(/\s+/g,' ')
+      .split('\n')[0]; // тільки перший рядок
+    if(out.length>300) out=out.slice(0,300);
+    return out;
+  }catch(e){
+    dlog('⚠️ image prompt fail: '+e.message);
+    return null;
+  }
+}
+
+// Попередньо завантажуємо картинку
+function preloadImage(url){
+  return new Promise(function(resolve){
+    var img=new Image();
+    var done=false;
+    img.onload=function(){if(!done){done=true;resolve(url)}};
+    img.onerror=function(){if(!done){done=true;resolve(null)}};
+    img.src=url;
+    setTimeout(function(){if(!done){done=true;resolve(url)}}, 60000);
+  });
+}
+
+var lenTokens={'Коротка':700,'Середня':1800,'Довга':3200};
+var lenScenes={'Коротка':3,'Середня':4,'Довга':6};
+
+async function generateTale(){
+  var topic=document.getElementById('topic').value.trim();
+  var errorEl=document.getElementById('errorMsg');
+  errorEl.style.display='none';
+
+  var btn=document.getElementById('btnGen');
+  var loading=document.getElementById('loading');
+  var storyCard=document.getElementById('storyCard');
+  btn.disabled=true;loading.style.display='block';storyCard.style.display='none';
+
+  var totalScenes=lenScenes[selectedLenT]||4;
+  var tokensPerScene=Math.floor((lenTokens[selectedLenT]||1800)/totalScenes)+200;
+
+  try{
+    dlog('🚀 Старт. модель='+activeModelLabel()+', сцен='+totalScenes);
+    // ===== ПРОХІД 1: ПЛАН =====
+    setStatus('📝 Придумую план казки');
+    var planPrompt='Ти — казкар. Придумай план '+selectedLen+' '+selectedGenre+' казки для дітей 4-8 років.\n'
+      +(topic?'Тема/герої: '+topic+'\n':'')
+      +'\nПоверни ТІЛЬКИ валідний JSON без зайвого тексту, без markdown, без ```. Формат:\n'
+      +'{\n'
+      +'  "title": "Назва казки українською",\n'
+      +'  "heroes": "Опис героїв з іменами, 1-2 речення українською",\n'
+      +'  "scenes": [\n'
+      +'    {"title":"Назва сцени 1","what_happens":"Що відбувається, 2-3 речення українською","image_en":"Image description in ENGLISH"},\n'
+      +'    ... всього '+totalScenes+' сцен ...\n'
+      +'  ]\n'
+      +'}\n\n'
+      +'ВАЖЛИВО:\n'
+      +'- Рівно '+totalScenes+' сцен з наростанням напруги і щасливим кінцем\n'
+      +'- "image_en" ОБОВʼЯЗКОВО АНГЛІЙСЬКОЮ (для генератора картинок)\n'
+      +'- Конкретні імена героїв, не "хлопчик" а наприклад "Михайлик"\n'
+      +'- Додай несподіваний поворот у 2-3 сцені\n'
+      +'- Тільки валідний JSON, нічого більше!';
+
+    var planRaw=await aiGenerate(planPrompt, {temperature:1.0, num_predict:1500});
+    dlog('📥 planRaw ('+planRaw.length+' симв):', planRaw.slice(0,200));
+    var plan=extractJson(planRaw);
+    dlog('📋 plan parsed:', plan?'OK, scenes='+((plan.scenes&&plan.scenes.length)||0):'FAILED');
+
+    // ===== FALLBACK: якщо план не вдалося — пишемо казку одним куском =====
+    if(!plan||!plan.scenes||!plan.scenes.length){
+      dlog('⚠️ FALLBACK: простий режим');
+      console.warn('План не розпарсився, fallback. Raw:', planRaw.slice(0,300));
+      setStatus('✍️ Пишу казку (простим способом)');
+      var simplePrompt='Ти — чарівний казкар для дітей. Напиши '+selectedLen+' '+selectedGenre+' казку для дітей 4-8 років.\n'
+        +(topic?'Тема/герої: '+topic+'\n':'')
+        +'\nВимоги:\n'
+        +'- Жива мова, діалоги, емоції, кольори\n'
+        +'- Конкретні імена героїв (наприклад "Михайлик" замість "хлопчик")\n'
+        +'- Несподіваний поворот і щасливий кінець\n'
+        +'- Почни обовʼязково з: НАЗВА: [назва казки]\n'
+        +'- Потім текст казки, розбитий на абзаци\n'
+        +'- ТІЛЬКИ українською мовою';
+      var simpleText=await aiGenerate(simplePrompt, {
+        temperature:0.95,
+        num_predict:lenTokens[selectedLenT]||1800
+      });
+      if(!simpleText.trim())throw new Error('Модель повернула пустий результат. Спробуй ще раз або іншу модель.');
+
+      var titleMatch=simpleText.match(/НАЗВА:\s*(.+)/i);
+      var title=titleMatch?titleMatch[1].trim():'Чарівна казка';
+      var body=simpleText.replace(/НАЗВА:\s*.+\n?/i,'').trim();
+
+      // Просимо модель описати обкладинку англійською на базі готового тексту
+      setStatus('🎨 Придумую обкладинку');
+      var imgPrompt=await buildImagePrompt(title, body, topic||selectedGenre);
+      if(!imgPrompt) imgPrompt=(topic||selectedGenre)+' children fairytale';
+      dlog('🖼️ cover prompt: '+imgPrompt.slice(0,100));
+      var imgUrl=pollinationsUrl(imgPrompt, Math.floor(Math.random()*100000));
+      setStatus('🎨 Малюю ілюстрацію');
+      var coverImg=await preloadImage(imgUrl);
+
+      currentStory={
+        title:title,
+        scenes:[{title:title, text:body, image:coverImg}],
+        body:body,
+        genre:selectedGenre, len:selectedLenT,
+        date:new Date().toLocaleDateString('uk'),
+        model:activeModelLabel()
+      };
+      renderStory(currentStory);
+      btn.disabled=false;loading.style.display='none';
+      return;
+    }
+
+    // ===== ПРОХІД 2: СЦЕНИ ПО ЧЕРЗІ =====
+    var n=plan.scenes.length;
+    var picIndices=n<=1?[0]:n<=3?[0, n-1]:[0, Math.floor(n/2), n-1];
+    picIndices=picIndices.filter(function(v,i,a){return a.indexOf(v)===i});
+
+    var sceneTexts=[];
+    for(var i=0;i<plan.scenes.length;i++){
+      var sc=plan.scenes[i];
+      setStatus('✍️ Сцена '+(i+1)+'/'+plan.scenes.length);
+
+      var context='Казка: "'+plan.title+'"\nГерої: '+plan.heroes+'\n';
+      if(sceneTexts.length){
+        var prev=sceneTexts[sceneTexts.length-1];
+        context+='Попередня сцена: ...'+prev.slice(-250)+'\n';
+      }
+
+      var isFirst=i===0, isLast=i===plan.scenes.length-1;
+      var scenePrompt=context+'\nНапиши сцену "'+sc.title+'".\n'
+        +'У цій сцені: '+sc.what_happens+'\n\n'
+        +'Вимоги:\n'
+        +'- Жива мова для дітей 4-8 років, але не примітивна\n'
+        +'- Додай діалоги, звуки, емоції, кольори, запахи\n'
+        +'- Конкретні деталі замість загальних слів\n'
+        +'- '+(isFirst?'Почни казку, введи героїв у світ.':isLast?'Заверши казку красиво, без прямого моралізаторства.':'Продовж історію, додай інтриги.')+'\n'
+        +'- 3-6 абзаців\n'
+        +'- ТІЛЬКИ українською, БЕЗ заголовків, БЕЗ слова "Сцена", одразу текст';
+
+      var sceneText=await aiGenerate(scenePrompt, {temperature:0.95, num_predict:tokensPerScene});
+      dlog('✍️ сцена '+(i+1)+' готова ('+sceneText.length+' симв)');
+      sceneText=sceneText.replace(/^\s*(Сцена|НАЗВА|Глава|Розділ)[^\n]*\n/gim,'').trim();
+      sceneTexts.push(sceneText);
+    }
+
+    // ===== ПРОХІД 3: IMAGE PROMPTS ДЛЯ КЛЮЧОВИХ СЦЕН =====
+    // Тепер коли сцени готові, просимо модель описати ключові моменти англійською
+    setStatus('🎨 Придумую ілюстрації');
+    dlog('🎨 генерую '+picIndices.length+' image prompts паралельно');
+
+    var seed=Math.floor(Math.random()*100000);
+    var imagePromptPromises=picIndices.map(function(idx){
+      var sc=plan.scenes[idx];
+      return buildImagePrompt(sc.title, sceneTexts[idx], plan.heroes||'')
+        .then(function(imgPrompt){
+          // Якщо модель не змогла — fallback на image_en з плану або опис сцени
+          var finalPrompt=imgPrompt||sc.image_en||sc.what_happens||plan.title;
+          dlog('🖼️ scene '+idx+' prompt: '+finalPrompt.slice(0,100));
+          var url=pollinationsUrl(finalPrompt, seed+idx);
+          return preloadImage(url).then(function(loadedUrl){
+            return {idx:idx, url:loadedUrl, prompt:finalPrompt};
+          });
+        });
+    });
+
+    setStatus('🎨 Малюю ілюстрації');
+    var imageResults=await Promise.all(imagePromptPromises);
+    var images={};
+    imageResults.forEach(function(r){
+      images[r.idx]=r.url;
+      dlog('✅ картинка '+r.idx+': '+(r.url?'OK':'FAIL'));
+    });
+
+    // ===== ЗБИРАЄМО КАЗКУ =====
+    currentStory={
+      title:plan.title||'Чарівна казка',
+      heroes:plan.heroes||'',
+      scenes:plan.scenes.map(function(sc,i){
+        return {
+          title:sc.title||('Сцена '+(i+1)),
+          text:sceneTexts[i]||'',
+          image:images[i]||null
+        };
+      }),
+      genre:selectedGenre,
+      len:selectedLenT,
+      date:new Date().toLocaleDateString('uk'),
+      model:activeModelLabel()
+    };
+    // Для сумісності
+    currentStory.body=currentStory.scenes.map(function(s){return s.text}).join('\n\n');
+
+    renderStory(currentStory);
+    dlog('✅ ГОТОВО');
+  }catch(e){
+    dlog('💥 CATCH: '+(e.message||e));
+    var msg=e.message||'Невідома помилка';
+    if(msg.includes('fetch')||msg.includes('Failed'))msg='Ollama не запущена. Відкрий термінал і введи: ollama serve';
+    errorEl.textContent='😢 '+msg;
+    errorEl.style.display='block';
+  }
+  btn.disabled=false;loading.style.display='none';
+}
+
+function renderStory(story){
+  var icon=genreIcons[story.genre]||'📖';
+  var color=genreColors[story.genre]||'#c77dff';
+  document.getElementById('storyIcon').textContent=icon;
+  document.getElementById('storyTitle').textContent=story.title;
+  document.getElementById('storyTags').innerHTML='<span class="story-tag" style="background:'+color+'22;color:'+color+';border:1px solid '+color+'44">'+icon+' '+story.genre+'</span><span class="story-tag" style="background:rgba(77,255,180,.12);color:#4dffb4;border:1px solid rgba(77,255,180,.25)">📏 '+story.len+'</span>';
+  var bodyEl=document.getElementById('storyBody');
+
+  // Новий формат (зі сценами) і старий (просто body)
+  var html='';
+  if(story.scenes&&story.scenes.length){
+    story.scenes.forEach(function(sc, i){
+      if(sc.image){
+        html+='<div style="margin:14px -18px 14px -18px;position:relative"><img src="'+sc.image+'" alt="" style="width:100%;display:block;border-radius:0" loading="lazy" onerror="this.parentNode.style.display=\'none\'"/></div>';
+      }
+      var paras=sc.text.split(/\n\n+/).filter(function(p){return p.trim()});
+      paras.forEach(function(p,pi){
+        html+='<p style="animation-delay:'+((i*3+pi)*.06)+'s">'+p.replace(/\n/g,'<br>')+'</p>';
+      });
+    });
+  } else {
+    // fallback для старих збережених казок
+    var paras=(story.body||'').split(/\n\n+/).filter(function(p){return p.trim()});
+    html=paras.map(function(p,i){return '<p style="animation-delay:'+(i*.08)+'s">'+p.replace(/\n/g,'<br>')+'</p>'}).join('');
+  }
+  bodyEl.innerHTML=html;
+  document.getElementById('storyCard').style.display='block';
+  document.getElementById('storyCard').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+window.saveStory=function(){
+  if(!currentStory)return;
+  var exists=savedStories.find(function(s){return s.title===currentStory.title&&s.body===currentStory.body});
+  if(!exists){
+    savedStories.unshift(Object.assign({},currentStory,{id:Date.now()}));
+    if(savedStories.length>20)savedStories=savedStories.slice(0,20);
+    try{localStorage.setItem('tales',JSON.stringify(savedStories))}catch(e){}
+  }
+  renderSaved();showToast('💾 Казку збережено!');
+};
+window.copyStory=function(){
+  if(!currentStory)return;
+  var text=currentStory.title+'\n\n'+currentStory.body;
+  if(navigator.clipboard){navigator.clipboard.writeText(text).then(function(){showToast('📋 Скопійовано!')}).catch(function(){fbCopy(text)})}else{fbCopy(text)}
+};
+function fbCopy(text){
+  var el=document.createElement('textarea');el.value=text;document.body.appendChild(el);el.select();
+  try{document.execCommand('copy');showToast('📋 Скопійовано!')}catch(e){}
+  document.body.removeChild(el);
+}
+window.newStory=function(){
+  document.getElementById('storyCard').style.display='none';
+  document.getElementById('topic').value='';
+  window.scrollTo({top:0,behavior:'smooth'});
+};
+
+function renderSaved(){
+  var sec=document.getElementById('savedSection');
+  var list=document.getElementById('savedList');
+  if(!savedStories.length){sec.style.display='none';return}
+  sec.style.display='block';
+  list.innerHTML=savedStories.map(function(s,i){
+    return '<div class="saved-item" onclick="openSaved('+i+')"><div class="saved-item-icon">'+(genreIcons[s.genre]||'📖')+'</div><div class="saved-item-info"><div class="saved-item-title">'+s.title+'</div><div class="saved-item-meta">'+s.genre+' · '+s.len+' · '+s.date+'</div></div><button class="saved-item-del" onclick="event.stopPropagation();deleteSaved('+i+')">✕</button></div>';
+  }).join('');
+}
+window.openSaved=function(i){currentStory=savedStories[i];renderStory(currentStory)};
+window.deleteSaved=function(i){savedStories.splice(i,1);try{localStorage.setItem('tales',JSON.stringify(savedStories))}catch(e){}renderSaved();showToast('🗑️ Видалено')};
+
+function showToast(msg){
+  var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show')},2400);
+}
+
+// ============ ГОЛОСОВА ЗАСТАВКА + TTS ============
+var voiceBlob=null;
+var voiceBlobUrl=null;
+var mediaRecorder=null;
+var recChunks=[];
+var recTimer=null;
+var ttsRate=parseFloat(localStorage.getItem('ttsRate')||'0.95');
+var ttsPitch=parseFloat(localStorage.getItem('ttsPitch')||'1.0');
+var ttsIsPlaying=false;
+var ttsCurrentUtterance=null;
+var ttsAudio=null;
+
+// IndexedDB для зберігання аудіо
+function idbOpen(){
+  return new Promise(function(resolve, reject){
+    var req=indexedDB.open('kazkaDB', 1);
+    req.onupgradeneeded=function(e){
+      var db=e.target.result;
+      if(!db.objectStoreNames.contains('voice')) db.createObjectStore('voice');
+    };
+    req.onsuccess=function(){ resolve(req.result); };
+    req.onerror=function(){ reject(req.error); };
+  });
+}
+async function idbSaveVoice(blob){
+  var db=await idbOpen();
+  return new Promise(function(resolve, reject){
+    var tx=db.transaction(['voice'],'readwrite');
+    tx.objectStore('voice').put(blob,'intro');
+    tx.oncomplete=function(){resolve()};
+    tx.onerror=function(){reject(tx.error)};
+  });
+}
+async function idbLoadVoice(){
+  var db=await idbOpen();
+  return new Promise(function(resolve){
+    var tx=db.transaction(['voice'],'readonly');
+    var req=tx.objectStore('voice').get('intro');
+    req.onsuccess=function(){resolve(req.result||null)};
+    req.onerror=function(){resolve(null)};
+  });
+}
+async function idbDeleteVoice(){
+  var db=await idbOpen();
+  return new Promise(function(resolve){
+    var tx=db.transaction(['voice'],'readwrite');
+    tx.objectStore('voice').delete('intro');
+    tx.oncomplete=function(){resolve()};
+  });
+}
+
+// Завантажуємо збережений голос при старті
+(async function(){
+  try{
+    var blob=await idbLoadVoice();
+    if(blob){
+      voiceBlob=blob;
+      voiceBlobUrl=URL.createObjectURL(blob);
+    }
+    updateVoiceUI();
+  }catch(e){}
+})();
+
+function updateVoiceUI(){
+  var s=document.getElementById('voiceStatus');
+  var playBtn=document.getElementById('recPlayBtn');
+  var delBtn=document.getElementById('recDelBtn');
+  if(!s) return;
+  if(voiceBlob){
+    var kb=Math.round(voiceBlob.size/1024);
+    s.innerHTML='✅ Голос записано <span style="color:rgba(255,255,255,.3)">('+kb+' KB)</span>';
+    s.style.color='#4dffb4';
+    playBtn.disabled=false;
+    delBtn.disabled=false;
+  } else {
+    s.textContent='⚠️ Голос не записано. Озвучка буде без твоєї заставки';
+    s.style.color='rgba(255,255,255,.4)';
+    playBtn.disabled=true;
+    delBtn.disabled=true;
+  }
+}
+
+window.startRec=async function(){
+  var btn=document.getElementById('recStartBtn');
+  if(mediaRecorder && mediaRecorder.state==='recording'){
+    // Зупинка
+    mediaRecorder.stop();
+    clearInterval(recTimer);
+    btn.textContent='🔴 Записати';
+    btn.style.background='rgba(255,100,100,.15)';
+    return;
+  }
+  try{
+    var stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    recChunks=[];
+    var mime='audio/webm;codecs=opus';
+    if(!MediaRecorder.isTypeSupported(mime)) mime='audio/webm';
+    if(!MediaRecorder.isTypeSupported(mime)) mime='';
+    mediaRecorder=mime?new MediaRecorder(stream,{mimeType:mime}):new MediaRecorder(stream);
+    mediaRecorder.ondataavailable=function(e){ if(e.data.size>0) recChunks.push(e.data); };
+    mediaRecorder.onstop=async function(){
+      stream.getTracks().forEach(function(t){t.stop()});
+      var blob=new Blob(recChunks,{type:mediaRecorder.mimeType||'audio/webm'});
+      if(voiceBlobUrl) URL.revokeObjectURL(voiceBlobUrl);
+      voiceBlob=blob;
+      voiceBlobUrl=URL.createObjectURL(blob);
+      try{
+        await idbSaveVoice(blob);
+        showToast('💾 Голос збережено');
+      }catch(e){
+        showToast('⚠️ Не вдалося зберегти');
+      }
+      updateVoiceUI();
+    };
+    mediaRecorder.start();
+    btn.textContent='⏹ Зупинити (0с)';
+    btn.style.background='rgba(255,100,100,.35)';
+    var start=Date.now();
+    recTimer=setInterval(function(){
+      var sec=Math.round((Date.now()-start)/1000);
+      btn.textContent='⏹ Зупинити ('+sec+'с)';
+      // Автостоп 20 сек
+      if(sec>=20){
+        mediaRecorder.stop();
+        clearInterval(recTimer);
+        btn.textContent='🔴 Записати';
+        btn.style.background='rgba(255,100,100,.15)';
+      }
+    },250);
+  }catch(e){
+    showToast('❌ Немає дозволу на мікрофон');
+  }
+};
+
+window.playVoice=function(){
+  if(!voiceBlobUrl) return;
+  var a=new Audio(voiceBlobUrl);
+  a.play().catch(function(){showToast('❌ Не вдалося відтворити')});
+};
+
+window.deleteVoice=async function(){
+  if(!confirm('Видалити голосову заставку?')) return;
+  if(voiceBlobUrl) URL.revokeObjectURL(voiceBlobUrl);
+  voiceBlob=null;
+  voiceBlobUrl=null;
+  try{ await idbDeleteVoice(); }catch(e){}
+  updateVoiceUI();
+  showToast('🗑 Видалено');
+};
+
+// Слайдери
+setTimeout(function(){
+  var rs=document.getElementById('rateSlider');
+  var ps=document.getElementById('pitchSlider');
+  var rv=document.getElementById('rateVal');
+  var pv=document.getElementById('pitchVal');
+  if(rs){
+    rs.value=ttsRate;
+    rv.textContent=ttsRate.toFixed(2)+'×';
+    rs.addEventListener('input',function(){
+      ttsRate=parseFloat(rs.value);
+      rv.textContent=ttsRate.toFixed(2)+'×';
+      localStorage.setItem('ttsRate',String(ttsRate));
+    });
+  }
+  if(ps){
+    ps.value=ttsPitch;
+    pv.textContent=ttsPitch.toFixed(1);
+    ps.addEventListener('input',function(){
+      ttsPitch=parseFloat(ps.value);
+      pv.textContent=ttsPitch.toFixed(1);
+      localStorage.setItem('ttsPitch',String(ttsPitch));
+    });
+  }
+},100);
+
+// ======= TTS =======
+function pickUkVoice(){
+  var voices=speechSynthesis.getVoices();
+  // Шукаємо українську
+  var uk=voices.find(function(v){return /^uk/i.test(v.lang)});
+  if(uk) return uk;
+  // Запасний варіант — російська (близька фонетика)
+  var ru=voices.find(function(v){return /^ru/i.test(v.lang)});
+  return ru||voices[0]||null;
+}
+// На деяких браузерах voices вантажаться асинхронно
+if(typeof speechSynthesis!=='undefined'){
+  speechSynthesis.onvoiceschanged=function(){};
+}
+
+function stopTTS(){
+  ttsIsPlaying=false;
+  try{ speechSynthesis.cancel(); }catch(e){}
+  if(ttsAudio){ try{ttsAudio.pause()}catch(e){} ttsAudio=null; }
+  var btn=document.getElementById('speakBtn');
+  if(btn){ btn.textContent='🔊 Читати вголос'; btn.classList.remove('on'); }
+}
+
+function speakText(text){
+  return new Promise(function(resolve){
+    if(!('speechSynthesis' in window)){
+      showToast('❌ TTS не підтримується');
+      resolve();return;
+    }
+    // Розбиваємо на шматки по ~200 символів для стабільності
+    var chunks=text.match(/[^.!?\n]+[.!?]?\s*/g)||[text];
+    var combined=[];
+    var cur='';
+    chunks.forEach(function(c){
+      if((cur+c).length>200){ if(cur) combined.push(cur); cur=c; }
+      else cur+=c;
+    });
+    if(cur) combined.push(cur);
+
+    var voice=pickUkVoice();
+    var i=0;
+    function next(){
+      if(!ttsIsPlaying || i>=combined.length){ resolve(); return; }
+      var u=new SpeechSynthesisUtterance(combined[i]);
+      if(voice) u.voice=voice;
+      u.lang=voice?voice.lang:'uk-UA';
+      u.rate=ttsRate;
+      u.pitch=ttsPitch;
+      u.onend=function(){ i++; next(); };
+      u.onerror=function(){ i++; next(); };
+      ttsCurrentUtterance=u;
+      speechSynthesis.speak(u);
+    }
+    next();
+  });
+}
+
+function playVoiceIntro(){
+  return new Promise(function(resolve){
+    if(!voiceBlobUrl){ resolve(); return; }
+    ttsAudio=new Audio(voiceBlobUrl);
+    ttsAudio.onended=function(){ resolve(); };
+    ttsAudio.onerror=function(){ resolve(); };
+    ttsAudio.play().catch(function(){ resolve(); });
+  });
+}
+
+window.speakStory=async function(){
+  if(ttsIsPlaying){ stopTTS(); return; }
+  if(!currentStory){ showToast('❌ Немає казки'); return; }
+
+  var btn=document.getElementById('speakBtn');
+  btn.textContent='⏹ Зупинити';
+  btn.classList.add('on');
+  ttsIsPlaying=true;
+
+  try{
+    // 1) Заставка твоїм голосом
+    if(voiceBlobUrl){
+      await playVoiceIntro();
+      if(!ttsIsPlaying) return;
+    }
+    // 2) Назва казки
+    await speakText(currentStory.title+'.');
+    if(!ttsIsPlaying) return;
+
+    // 3) Текст казки по сценам або body
+    if(currentStory.scenes && currentStory.scenes.length){
+      for(var i=0;i<currentStory.scenes.length;i++){
+        if(!ttsIsPlaying) break;
+        await speakText(currentStory.scenes[i].text||'');
+      }
+    } else if(currentStory.body){
+      await speakText(currentStory.body);
+    }
+  }catch(e){
+    console.error(e);
+  }
+  stopTTS();
+};
+
+// Зупиняємо озвучку якщо користувач закриває сторінку
+window.addEventListener('beforeunload', stopTTS);
+
+renderSaved();
+</script>
+</body>
+</html>
